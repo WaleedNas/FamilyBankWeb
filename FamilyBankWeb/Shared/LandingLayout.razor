@@ -1,0 +1,146 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject IHttpClientFactory clientFactory
+@inject ISessionStorageService sessionStorage
+@inject AppState appState
+@inject CustomAuthStateProvider authStateProvider
+
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700"
+          rel="stylesheet" />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+
+    <!--<link rel="stylesheet" href="css/icon-font.css">-->
+
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="shortcut icon" type="image/png" href="img/favicon.png" />
+
+    
+</head>
+
+<div class="navigation">
+    <input type="checkbox" class="navigation__checkbox" id="navi-toggle" />
+
+    <label for="navi-toggle" class="navigation__button">
+        <span class="navigation__icon">&nbsp;</span>
+    </label>
+
+    <div class="navigation__background">&nbsp;</div>
+
+    
+    <nav class="navigation__nav">
+        <ul class="navigation__list">
+
+            <AuthorizeView>
+            
+                <Authorized>
+                <li class="navigation__item">
+                    <a href="/" class="navigation__link"><span></span>Accounts</a>
+                </li>
+                <li class="navigation__item">
+                    <a href="/createAcc" class="navigation__link"><span></span>Create Account</a>
+                </li>
+                <li class="navigation__item">
+                    <a href="/" @onclick="HandleSignOut" class="navigation__link"><span></span>Sign Out</a>
+                </li>
+                </Authorized>
+
+                <NotAuthorized>
+                <li class="navigation__item">
+                    <a href="/" class="navigation__link"><span></span>FamBank</a>
+                </li>
+                <li class="navigation__item">
+                    <a href="/#section-about" class="navigation__link"><span></span>About us</a>
+                </li>
+                <li class="navigation__item">
+                    <a href="/#section-features" class="navigation__link"><span></span>Your benefits</a>
+                </li>
+                <li class="navigation__item">
+                    <a href="signup" class="navigation__link">
+                        <span></span>Sign Up
+                    </a>
+                </li>
+                <li class="navigation__item">
+                    <a href="signin" class="navigation__link"><span></span>Sign In</a>
+                </li>
+                </NotAuthorized>
+            </AuthorizeView>
+            
+        </ul>
+    </nav>
+</div>
+
+<div>
+    @Body
+</div>
+
+<AuthorizeView>
+<NotAuthorized>
+<footer class="footer">
+    <div class="footer__logo-box">
+        <picture class="footer__logo">
+            <source srcset="
+              img/logo-green-small-1x.png 1x,
+              img/logo-green-small-2x.png 2x
+            "
+                    media="(max-width: 37.5em)" />
+            <img srcset="img/logo-green-1x.png 1x, img/logo-green-2x.png 2x"
+                 alt="Full logo"
+                 src="img/logo-green-2x.png" />
+        </picture>
+    </div>
+    <div class="row">
+        <div class="col-1-of-2">
+            <div class="footer__navigation">
+                <ul class="footer__list">
+                    <li class="footer__item">
+                        <a href="#" class="footer__link">Company</a>
+                    </li>
+                    <li class="footer__item">
+                        <a href="#" class="footer__link">Contact us</a>
+                    </li>
+                    <li class="footer__item">
+                        <a href="#" class="footer__link">Carrers</a>
+                    </li>
+                    <li class="footer__item">
+                        <a href="#" class="footer__link">Privacy policy</a>
+                    </li>
+                    <li class="footer__item">
+                        <a href="#" class="footer__link">Terms</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-1-of-2">
+            <p class="footer__copyright">Copyright &copy; by Ak 2023</p>
+        </div>
+    </div>
+</footer>
+    </NotAuthorized>
+
+</AuthorizeView>
+
+
+@code{
+
+
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    await appState.LoadState();
+    //}
+
+    private async Task HandleSignOut()
+    {
+        var auth = new AuthService(clientFactory, sessionStorage, NavigationManager, appState);
+        await auth.Logout();
+        await authStateProvider.GetAuthenticationStateAsync();
+    }
+
+}
+

@@ -1,0 +1,82 @@
+﻿@page "/account"
+@layout AccountLayout
+@inject ISessionStorageService sessionStorage
+@inject IHttpClientFactory clientFactory
+@inject AppState appState
+@inject NavigationManager NavigationManager
+
+<title>FamBank | Account Page</title>
+
+<main>
+    <section id="home">
+        <div class="home__balance">
+            <h3>Balance:</h3>
+            <p>$500.00</p>
+        </div>
+        <div class="credit-card">
+            <div class="credit-card__inner">
+                <div class="credit-card__front">
+                    <h2 class="credit-card__title">FamBank Credit Card</h2>
+                    <div class="credit-card__number">•••• •••• •••• ••••</div>
+                    <div class="credit-card__details">
+                        <div class="credit-card__detail">
+                            <div class="credit-card__label">Cardholder Name</div>
+                            <div class="credit-card__value">John Doe</div>
+                        </div>
+                        <div class="credit-card__detail">
+                            <div class="credit-card__label">Expiration Date</div>
+                            <div class="credit-card__value">12/24</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="home__buttons">
+            <button class="home__button btn btn--white btn--animated">
+                <i class="fas fa-dollar-sign"></i>
+                Pay Bills
+            </button>
+            <button class="home__button btn btn--white btn--animated">
+                <i class="fas fa-credit-card"></i>
+
+                Debit
+            </button>
+            <button class="home__button btn btn--white btn--animated">
+                <i class="fas fa-arrow-up"></i>
+                Allowance
+            </button>
+        </div>
+        <div class="home__transactions">
+            <h3>Recent Transactions:</h3>
+
+            <ul>
+                <li>12 Apr 2023 - $50.00 - Groceries</li>
+                <li>10 Apr 2023 - $25.00 - Gas</li>
+                <li>08 Apr 2023 - $100.00 - Rent</li>
+            </ul>
+            <a class="home__view-transactions btn"> View All Transactions </a>
+        </div>
+    </section>
+</main>
+
+@code {
+    private UserModel user = new UserModel();
+    private AccountModel accountModel = new AccountModel();
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            user = await sessionStorage.GetItemAsync<UserModel>("user");
+
+            if (user != null)
+            {
+                await appState.LoadState();
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle the exception here
+            ex.Message.ToString();
+        }
+    }
+}

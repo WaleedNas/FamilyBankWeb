@@ -1,0 +1,160 @@
+﻿@page "/signup"
+@layout LandingLayout
+@inject NavigationManager NavigationManager
+@inject IHttpClientFactory clientFactory
+@inject ISessionStorageService sessionStorage
+@inject AppState appState
+
+
+
+<PageTitle>Sign Up</PageTitle>
+
+
+<title>FamBank | Sign Up</title>
+
+<main>
+
+    <div class="header__logo-box">
+        <a href="/">
+            <img src="img/logo-white.png" alt="Logo" class="header__logo" />
+        </a>
+    </div>
+    <section class="section-book">
+        <div class="row">
+            <div class="book">
+                <div class="book__form">
+                    <EditForm Model=@userModel OnValidSubmit=HandleSubmit class="form">
+
+                        <div class="u-margin-bottom-medium">
+                            <h2 class="heading-secondary">sign up now</h2>
+                        </div>
+
+                        <div class="form__group" style="margin-bottom:0rem;">
+                            <InputText
+                                    class="form__input"
+                                    placeholder="First name"
+                                    id="firstname"
+                                    @bind-Value=userModel.firstName
+                                    required />
+                            <label for="firstname" class="form__label">First name</label>
+                        </div>
+
+                    <div class="form__group" style="margin-bottom:0rem;">
+                            <InputText
+                                    class="form__input"
+                                    placeholder="Last name"
+                                    id="lastname"
+                                    @bind-Value=userModel.lastName
+                                    required />
+                            <label for="lastname" class="form__label">Last name</label>
+                        </div>
+
+                    <div class="form__group" style="margin-bottom:0rem;">
+                            <InputText
+                                    class="form__input"
+                                    placeholder="Username"
+                                    id="username"
+                                    @bind-Value=userModel.username
+                                    required />
+                            <label for="username" class="form__label">Username</label>
+                        </div>
+
+                    <div class="form__group" style="margin-bottom:0rem;">
+                            <InputText type="password"
+                                    class="form__input"
+                                    placeholder="Password"
+                                    id="password"
+                                    @bind-Value=userModel.password
+                                    required />
+                            <label for="password" class="form__label">Password</label>
+                        </div>
+
+                    <div class="form__group" style="margin-bottom:0rem;">
+                            <InputDate
+                                    class="form__input"
+                                    placeholder="Date of Birth"
+                                    id="dob"
+                                    @bind-Value=userModel.dateOfBirth
+                                    required />
+                            <label for="dob" class="form__label">Date of Birth</label>
+                        </div>
+
+                    <div class="form__group" style="margin-bottom:0rem;">
+                            <InputText
+                                    class="form__input"
+                                    placeholder="Phone number"
+                                    id="phone"
+                                    @bind-Value=userModel.mobileNumber
+                                    inputmode="numeric"
+                                    required />
+                            <label for="phone" class="form__label">Phone number</label>
+                        </div>
+
+
+                        <div class="form__group" style="margin-top:1rem;">
+                            <h4>@alertMessage</h4>
+                            <h4>@errorMessage</h4>
+                            <button type="submit" class="btn btn--green">Submit &rarr;</button>
+                        </div>
+
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+</main>
+
+
+@code {
+
+    private UserModel userModel = new UserModel();
+    private UserLoginModel userLogin = new UserLoginModel();
+    public string alertMessage { get; set; }
+    public string errorMessage { get; set; }
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            //code to submit user
+            var userData = new UserData(clientFactory, sessionStorage);
+            var response = await userData.CreateUser(userModel);
+
+            userLogin.username = userModel.username;
+            userLogin.password = userModel.password;
+
+            var auth = new AuthService(clientFactory, sessionStorage, NavigationManager, appState);
+            var result = await auth.AuthenticateAsync(userLogin);
+            if (result)
+            {
+                NavigationManager.NavigateTo("/");
+            }
+            else
+            {
+                alertMessage = "User Already Exists";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var userData = new UserData(clientFactory, sessionStorage);
+        if (firstRender)
+        {
+            var login_session = await userData.IsUserLoggedIn();
+            if (login_session)
+			{
+				NavigationManager.NavigateTo("/");
+			}
+
+        }
+    }
+
+
+}

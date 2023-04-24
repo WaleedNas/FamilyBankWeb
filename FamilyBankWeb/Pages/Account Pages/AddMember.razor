@@ -1,0 +1,103 @@
+﻿@page "/addMember"
+@layout AccountLayout
+@inject IHttpClientFactory clientFactory
+@inject ISessionStorageService sessionStorage
+
+<div class="booke">
+                <div class="book__form">
+                    <EditForm Model=@addMemberModel OnValidSubmit=HandleSubmit class="form">
+
+                        <div class="u-margin-bottom-medium">
+                            <h2 class="heading-secondary">Add New Member</h2>
+                        </div>
+
+                        <div class="form__group" >
+                            <InputText
+                                    class="form__input"
+                                    placeholder="Username"
+                                    id="username"
+                                    @bind-Value=addMemberModel.username
+                                    required />
+                            <label for="username" class="form__label">Username</label>
+                        </div>
+
+                    <div class="form__group" 
+                            <InputText
+                                    class="form__input"
+                                    placeholder="Password"
+                                    id="password"
+                                    @bind-Value=addMemberModel.password
+                                    required />
+                            <label for="password" class="form__label">Password</label>
+                        </div>
+
+                    <div class="form__group">
+                <h3> Privilege Status</h3>
+                            <InputSelect
+                                    class="form__input"
+                                    placeholder="Username"
+                                    id="username"
+                                    @bind-Value=addMemberModel.priv
+                                    required>
+                                    <option value="Main"> Main</option>
+                                    <option value="Sub"> Sub</option>
+                                    </InputSelect>
+                        </div>
+
+                        <div class="form__group">
+                            <h3> Add Initial Balance</h3>
+                        <InputNumber placeholder="0.00"
+                                 id="balance"
+                                 @bind-Value=addMemberModel.balance
+                                 inputmode="numeric"
+                             style="font-size: 2rem;
+                                    text-align: center;
+                                    width: 20rem;
+                                    padding: 1rem;
+                                    border-radius: 5px;"
+                                 required />
+                        </div>
+
+                        <div class="form__group" style="margin-top:1rem;">
+
+                            <button type="submit" class="btn btn--green">Add Member &rarr;</button>
+                        </div>
+
+                    </EditForm>
+                </div>
+            </div>
+@code {
+
+    AccountUserModel accountUserModel = new AccountUserModel();
+    UserLoginModel userLoginModel = new UserLoginModel();
+    AddMemberModel addMemberModel = new AddMemberModel();
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            UserData userData = new UserData(clientFactory, sessionStorage);
+            AccountData accountData = new AccountData(clientFactory);
+            userLoginModel.username = addMemberModel.username;
+            userLoginModel.password = addMemberModel.password;
+            accountUserModel.balanceAvailable = addMemberModel.balance;
+            if (addMemberModel.priv == "Main")
+            {
+                accountUserModel.isMain = true;
+            }
+            else
+            {
+                accountUserModel.isMain = false;
+            }
+
+            int userID = await userData.GetIdFromLogin(userLoginModel);
+            accountUserModel.userID = userID;
+            //ToDo: enter account Id into accountUser
+            await accountData.CreateAccountUser(accountUserModel); 
+
+        }
+        catch (Exception ex)
+        {
+            
+        }
+    }
+}

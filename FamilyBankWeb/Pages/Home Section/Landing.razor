@@ -1,0 +1,203 @@
+﻿@page "/"
+@layout LandingLayout
+@inject IHttpClientFactory clientFactory
+@inject ISessionStorageService sessionStorage
+@inject NavigationManager NavigationManager
+@inject AppState appState
+
+
+<title>FamBank | Manage Your Family's Finances</title>
+<main>
+    <header class="header">
+        <div class="bg-video">
+            <video class="bg-video__content" autoplay muted loop>
+                <source src="img/newVideo.mp4" type="video/mp4" />
+                <source src="img/newVideo.webm" type="video/webm" />
+                Your browser is not supported!
+            </video>
+        </div>
+        <div class="header__logo-box">
+            <a href="/" class="header__logo-link">
+                <img src="img/logo-white.png" alt="Logo" class="header__logo" />
+            </a>
+        </div>
+
+        <AuthorizeView>
+            <Authorized>
+
+            
+        <div class="header__text-box">
+            <h1 class="heading-primary">
+                <span class="heading-primary--sub">Welcome,</span>
+                <span class="heading-primary--main">@context.User.Claims.FirstOrDefault()</span>
+            </h1>
+            <div class="heading__appimg"></div>
+        </div>
+            </Authorized>
+    <NotAuthorized>
+        <div class="header__text-box">
+            <h1 class="heading-primary">
+                <span class="heading-primary--main">FamBank</span>
+                <span class="heading-primary--sub">Manage Your Family's Finances in one place</span>
+            </h1>
+            <div class="heading__appimg"></div>
+            <a href="signin"
+               class="btn btn--white btn--animated"
+               style="margin-right: 2rem">Sign in</a>
+            <a href="signup" class="btn btn--white btn--animated">Sign Up</a>
+        </div>
+    
+    
+        <img src="img/homeView.png" alt="Image" class="header__image" />
+            </NotAuthorized>
+        </AuthorizeView>
+    </header>
+
+
+
+    <AuthorizeView>
+
+        <Authorized>
+
+          <section class = "section-about=">
+            <div class="u-center-text u-margin-bottom-big">
+                <h2 class="heading-secondary">Your Accounts</h2>
+            </div>
+          </section>
+        </Authorized>
+        <NotAuthorized>
+        <section class="section-about" id="section-about">
+            <div class="u-center-text u-margin-bottom-big">
+                <h2 class="heading-secondary">Our Unique Banking System</h2>
+            </div>
+
+            <div class="row">
+                <div class="col-1-of-2">
+                    <h3 class="heading-tertiary u-margin-bottom-small">
+                        Track & Manage Your Family's Financials All At Once
+                    </h3>
+                    <p class="paragraph">
+                        Keep your family's finances in check with our easy-to-use
+                        tracking and management tools. Say goodbye to the hassle of
+                        multiple accounts and keep everything in one place.
+                    </p>
+
+                    <h3 class="heading-tertiary u-margin-bottom-small">
+                        Make your banking experience easier than ever
+                    </h3>
+                    <p class="paragraph">
+                        Streamline your banking experience with our intuitive and
+                        user-friendly platform. Simplify your financial life today and
+                        start enjoying more time and savings.
+                    </p>
+
+                    <a href="signup" class="btn-text">Sign up &rarr;</a>
+                </div>
+                <div class="col-1-of-2">
+                    <div class="composition">
+                        <img srcset="img/guyUsingApp.jpg 300w, img/guyUsingApp.jpg 1000w"
+                             sizes="(max-width: 56.25em) 20vw, (max-width: 37.5em) 30vw, 300px"
+                             alt="Photo 1"
+                             class="composition__photo composition__photo--p1"
+                             src="img/guyUsingApp.jpg" />
+
+                        <img srcset="img/otherGuy.jpg 300w, img/otherGuy.jpg 1000w"
+                             sizes="(max-width: 56.25em) 20vw, (max-width: 37.5em) 30vw, 300px"
+                             alt="Photo 2"
+                             class="composition__photo composition__photo--p2"
+                             src="img/otherGuy.jpg" />
+
+                        <img srcset="img/otherGuy2.jpg 300w, img/otherGuy2.jpg 1000w"
+                             sizes="(max-width: 56.25em) 20vw, (max-width: 37.5em) 30vw, 300px"
+                             alt="Photo 3"
+                             class="composition__photo composition__photo--p3"
+                             src="img/otherGuy2.jpg" />
+
+                        <!--
+                                      <img src="img/nat-1-large.jpg" alt="Photo 1" class="composition__photo composition__photo--p1">
+                                      <img src="img/nat-2-large.jpg" alt="Photo 2" class="composition__photo composition__photo--p2">
+                                      <img src="img/nat-3-large.jpg" alt="Photo 3" class="composition__photo composition__photo--p3">
+                                      -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section-features" id="section-features">
+            <div class="row">
+                <div class="col-1-of-4">
+                    <div class="feature-box">
+                        <i class="feature-box__icon fas fa-user"></i>
+                        <h3 class="heading-tertiary u-margin-bottom-small">
+                            Create Accounts
+                        </h3>
+                        <p class="feature-box__text">
+                            Create accounts to add users effortlessly
+                            and manage your finances with ease.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-1-of-4">
+                    <div class="feature-box">
+                        <i class="feature-box__icon fas fa-comments"></i>
+                        <h3 class="heading-tertiary u-margin-bottom-small">
+                            Chat with our 24/7 virtual helper
+                        </h3>
+                        <p class="feature-box__text">
+                            Get instant help from our virtual assistant anytime, anywhere.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-1-of-4">
+                    <div class="feature-box">
+                        <i class="feature-box__icon fas fa-money-bill-wave"></i>
+                        <h3 class="heading-tertiary u-margin-bottom-small">
+                            Transfer money instantly
+                        </h3>
+                        <p class="feature-box__text">
+                            Transfer money instantly and securely with just a few clicks.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-1-of-4">
+                    <div class="feature-box">
+                        <i class="feature-box__icon fas fa-wallet"></i>
+                        <h3 class="heading-tertiary u-margin-bottom-small">
+                            Manage your stipends
+                        </h3>
+                        <p class="feature-box__text">
+                            Manage your stipends and stay in complete control of your finances.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </NotAuthorized>
+    </AuthorizeView>
+    </main>
+
+@code {
+
+    private UserModel user = new UserModel();
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            user = await sessionStorage.GetItemAsync<UserModel>("user");
+            if (user != null)
+            {
+                appState.SetIsAuthenticated(true);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle the exception here
+            ex.Message.ToString();
+        }
+    }
+
+
+}

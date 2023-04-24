@@ -1,0 +1,135 @@
+﻿@page "/createAcc"
+@layout CreateAccountLayout
+@inject ISessionStorageService sessionStorage
+@inject IHttpClientFactory clientFactory
+@inject AppState appState
+@inject NavigationManager NavigationManager
+
+
+<title>FamBank | Account Page</title>
+<style>
+    ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    li {
+        margin: 0.5rem 0;
+        font-size: 2rem;
+    }
+
+    /* Style balance input field */
+    #deposit input {
+        font-size: 3rem;
+        text-align: center;
+        width: 20rem;
+        padding: 1rem;
+        border-radius: 5px;
+        border: none;
+        margin-top: 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Add section for initial deposit amount */
+    #deposit {
+        text-align: center;
+        font-size: 2rem;
+        -webkit-appearance: none;
+        appearance: none;
+        text-align:center;
+    }
+
+    #deposit input[type="number"] {
+        -moz-appearance: textfield;
+        text-align: center;
+    }
+
+</style>
+
+
+<main>
+    <section id="home">
+        <div class="home__balance" style="margin: 2rem">
+            <h3>Create Your Bank Account</h3>
+             <h2>@errorMessage</h2>
+        </div>
+
+        <div class="home__balance">
+            <h3>You Will Be Able To: </h3>
+            
+        </div>
+        <div class="home__balance" style="margin: 2rem">
+            <ul>
+                <li>Add Family Members</li>
+                <li>Pay Your Bills</li>
+                <li>Control Your Finances</li>
+                <li>Manage Members' Accounts</li>
+            </ul>
+        </div>
+        <EditForm Model="@accountModel" OnValidSubmit="HandleSubmit" id="deposit">
+            <div class="home__balance">
+
+                <h3>Enter initial amount to deposit:</h3>
+            </div>
+            <InputNumber placeholder="0.00"
+                         id="balance"
+                         @bind-Value=accountModel.balance
+                         inputmode="numeric"
+                         required />
+            <br />
+
+            <button type="submit" class="btn btn--green">Create Account &rarr;</button>
+        </EditForm>
+
+
+
+
+        
+
+    </section>
+</main>
+@code {
+    private UserModel user = new UserModel();
+    private string errorMessage { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            user = await sessionStorage.GetItemAsync<UserModel>("user");
+            if (user != null)
+            {
+                await appState.LoadState();
+            }
+            else
+            {
+                errorMessage = "Error";
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle the exception here
+            errorMessage = ex.Message;
+        }
+    }
+
+    private AccountModel accountModel = new AccountModel();
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            var accountData = new AccountData(clientFactory);
+            var response = await accountData.CreateAccount(user.userID, accountModel.balance);
+
+            if (response != null)
+            {
+                NavigationManager.NavigateTo("/");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            
+        }
+    }
+}

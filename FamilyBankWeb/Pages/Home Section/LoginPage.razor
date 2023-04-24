@@ -1,0 +1,135 @@
+﻿@page "/signin"
+@layout LandingLayout
+@inject IHttpClientFactory clientFactory
+@inject NavigationManager NavigationManager
+@inject ISessionStorageService sessionStorage
+@inject AppState appState
+@inject CustomAuthStateProvider authStateProvider
+
+<PageTitle>Sign In</PageTitle>
+
+<AuthorizeView>
+    <NotAuthorized>
+
+<title>FamBank | Sign In</title>
+<main>
+    <div class="header__logo-box">
+        <a href="/">
+            <img src="img/logo-white.png" alt="Logo" class="header__logo" />
+        </a>
+    </div>
+
+    <section class="section-book">
+        <div class="row">
+            <div class="book">
+                <div class="book__form">
+                    <EditForm Context="another" Model="@userLogin" OnValidSubmit="HandleLogin" class="form">
+                        <div class="u-margin-bottom-medium">
+                            <h2 class="heading-secondary">Welcome Back</h2>
+                        </div>
+
+                        <div class="form__group">
+                            <InputText type="text"
+                                    class="form__input"
+                                    placeholder="Username"
+                                    id="username"
+                                    @bind-Value="userLogin.username"
+                                    required />
+                            <label for="username" class="form__label">Username</label>
+                        </div>
+
+                        <div class="form__group">
+                            <InputText type="password"
+                                    class="form__input"
+                                    placeholder="Password"
+                                    id="password"
+                                    @bind-Value="userLogin.password"
+                                    required />
+                            <label for="password" class="form__label">Password</label>
+                        </div>
+
+                        <div class="form__group u-margin-bottom-medium">
+                            <div class="form__radio-group">
+                                <input type="radio"
+                                        class="form__radio-input"
+                                        id="small"
+                                        name="size" />
+                            </div>
+                        </div>
+
+                        <div class="form__group">
+                            <h3>@loadingMessage</h3>
+                            <h3>@errorMessage</h3>
+                            <button type="submit" class="btn btn--green">Submit &rarr;</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+    </NotAuthorized>
+    <Authorized>
+        Already Logged In
+    </Authorized>
+</AuthorizeView>
+
+
+@code {
+    private UserLoginModel userLogin = new UserLoginModel();
+    private string loadingMessage { get; set; }
+    private string errorMessage { get; set; }
+    private bool IsAuthenticated { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var token = await sessionStorage.GetItemAsync<string>("authToken");
+            if (token != null)
+            {
+                NavigationManager.NavigateTo("/");
+            }
+        }
+        catch(Exception ex)
+        {
+            ex.Message.ToString();
+        }
+    }
+
+    protected async Task OnAfterRenderAsync()
+    {
+        try
+        {
+            var token = await sessionStorage.GetItemAsync<string>("authToken");
+            if (token != null)
+            {
+                NavigationManager.NavigateTo("/");
+            }
+        }
+        catch (Exception ex)
+        {
+            ex.Message.ToString();
+        }
+    }
+
+    private async Task HandleLogin()
+    {
+        var auth = new AuthService(clientFactory, sessionStorage, NavigationManager, appState);
+        loadingMessage = "Waiting for Response";
+        errorMessage = "";
+        var result = await auth.AuthenticateAsync(userLogin);
+        await authStateProvider.GetAuthenticationStateAsync();
+        if (result)
+        {
+            loadingMessage = "";
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            loadingMessage = "";
+            errorMessage = "Incorrect Username or Password";
+        }
+
+    }
+}
