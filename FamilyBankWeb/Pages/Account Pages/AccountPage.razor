@@ -2,7 +2,6 @@
 @layout AccountLayout
 @inject ISessionStorageService sessionStorage
 @inject IHttpClientFactory clientFactory
-@inject AppState appState
 @inject NavigationManager NavigationManager
 
 <title>FamBank | Account Page</title>
@@ -68,10 +67,6 @@
         {
             user = await sessionStorage.GetItemAsync<UserModel>("user");
 
-            if (user != null)
-            {
-                await appState.LoadState();
-            }
         }
         catch (Exception ex)
         {

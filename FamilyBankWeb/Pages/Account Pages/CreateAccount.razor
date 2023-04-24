@@ -2,7 +2,6 @@
 @layout CreateAccountLayout
 @inject ISessionStorageService sessionStorage
 @inject IHttpClientFactory clientFactory
-@inject AppState appState
 @inject NavigationManager NavigationManager
 
 
@@ -97,14 +96,11 @@
         try
         {
             user = await sessionStorage.GetItemAsync<UserModel>("user");
-            if (user != null)
-            {
-                await appState.LoadState();
-            }
-            else
+            if (user == null)
             {
                 errorMessage = "Error";
             }
+
         }
         catch (Exception ex)
         {

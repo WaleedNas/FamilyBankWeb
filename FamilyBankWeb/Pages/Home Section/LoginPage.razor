@@ -3,7 +3,6 @@
 @inject IHttpClientFactory clientFactory
 @inject NavigationManager NavigationManager
 @inject ISessionStorageService sessionStorage
-@inject AppState appState
 @inject CustomAuthStateProvider authStateProvider
 
 <PageTitle>Sign In</PageTitle>
@@ -115,11 +114,11 @@
 
     private async Task HandleLogin()
     {
-        var auth = new AuthService(clientFactory, sessionStorage, NavigationManager, appState);
+        var auth = new AuthService(clientFactory, sessionStorage, NavigationManager,
+        authStateProvider);
         loadingMessage = "Waiting for Response";
         errorMessage = "";
         var result = await auth.AuthenticateAsync(userLogin);
-        await authStateProvider.GetAuthenticationStateAsync();
         if (result)
         {
             loadingMessage = "";

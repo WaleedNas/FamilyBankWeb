@@ -2,8 +2,8 @@
 @inject NavigationManager NavigationManager
 @inject IHttpClientFactory clientFactory
 @inject ISessionStorageService sessionStorage
-@inject AppState appState
 @inject CustomAuthStateProvider authStateProvider
+
 
 
 <head>
@@ -137,9 +137,10 @@
 
     private async Task HandleSignOut()
     {
-        var auth = new AuthService(clientFactory, sessionStorage, NavigationManager, appState);
+        var auth = new AuthService(clientFactory, sessionStorage, NavigationManager,
+        authStateProvider);
         await auth.Logout();
-        await authStateProvider.GetAuthenticationStateAsync();
+        
     }
 
 }

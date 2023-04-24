@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components;
 using System.Net.NetworkInformation;
+using FamilyBankWeb.Services;
 
 namespace FamilyBankWeb.Services
 {
@@ -15,15 +16,15 @@ namespace FamilyBankWeb.Services
         private readonly IHttpClientFactory _clientFactory;
         private readonly ISessionStorageService _sessionStorage;
         private readonly NavigationManager _navigationManager;
-        private readonly AppState appState;
+        private readonly CustomAuthStateProvider authStateProvider;
 
         public AuthService(IHttpClientFactory clientFactory, ISessionStorageService sessionStorage,
-            NavigationManager navigationManager, AppState appState)
+            NavigationManager navigationManager,  CustomAuthStateProvider authStateProvider)
         {
             _clientFactory = clientFactory;
             _sessionStorage = sessionStorage;
             _navigationManager = navigationManager;
-            this.appState = appState;
+            this.authStateProvider = authStateProvider;
         }
 
         public async Task<bool> AuthenticateAsync(UserLoginModel userLogin)
@@ -42,7 +43,7 @@ namespace FamilyBankWeb.Services
                     await _sessionStorage.SetItemAsync("authToken", tokenResponse.token);
                     await _sessionStorage.SetItemAsync("user", tokenResponse.user);
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", tokenResponse.token);
-                    appState.SetIsAuthenticated(true);
+                    await authStateProvider.GetAuthenticationStateAsync();
                     return true;
                 }
             }
@@ -57,9 +58,8 @@ namespace FamilyBankWeb.Services
             await _sessionStorage.RemoveItemAsync("authToken");
             await _sessionStorage.RemoveItemAsync("user");
             client.DefaultRequestHeaders.Authorization = null;
-            appState.SetIsAuthenticated(false);
             _navigationManager.NavigateTo("/signin");
-
+            await authStateProvider.GetAuthenticationStateAsync();
         }
 
         public async Task<bool> IsAuthenticated()

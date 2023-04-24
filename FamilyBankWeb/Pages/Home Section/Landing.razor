@@ -3,7 +3,7 @@
 @inject IHttpClientFactory clientFactory
 @inject ISessionStorageService sessionStorage
 @inject NavigationManager NavigationManager
-@inject AppState appState
+
 
 
 <title>FamBank | Manage Your Family's Finances</title>
@@ -187,10 +187,7 @@
         try
         {
             user = await sessionStorage.GetItemAsync<UserModel>("user");
-            if (user != null)
-            {
-                appState.SetIsAuthenticated(true);
-            }
+
         }
         catch (Exception ex)
         {

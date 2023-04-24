@@ -17,13 +17,12 @@ builder.Services.AddHttpClient("Api", HttpClient =>
     HttpClient.BaseAddress = new Uri("https://familybankapi.azurewebsites.net/");
 });
 builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<AppState>();
 builder.Services.AddHttpContextAccessor();
 //builder.Services.AddAuthentication();
 //builder.Services.AddAuthorization();
 builder.Services.AddBlazoredSessionStorage();
-builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 builder.Services.AddScoped<CustomAuthStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<CustomAuthStateProvider>());
 builder.Services.AddAuthorizationCore();
 
 

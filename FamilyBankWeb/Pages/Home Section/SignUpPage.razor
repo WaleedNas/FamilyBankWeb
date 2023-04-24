@@ -3,7 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IHttpClientFactory clientFactory
 @inject ISessionStorageService sessionStorage
-@inject AppState appState
+@inject CustomAuthStateProvider authStateProvider
 
 
 
@@ -125,7 +125,8 @@
             userLogin.username = userModel.username;
             userLogin.password = userModel.password;
 
-            var auth = new AuthService(clientFactory, sessionStorage, NavigationManager, appState);
+            var auth = new AuthService(clientFactory, sessionStorage, NavigationManager,
+            authStateProvider);
             var result = await auth.AuthenticateAsync(userLogin);
             if (result)
             {
