@@ -130,11 +130,6 @@
 @code{
 
 
-    //protected override async Task OnInitializedAsync()
-    //{
-    //    await appState.LoadState();
-    //}
-
     private async Task HandleSignOut()
     {
         var auth = new AuthService(clientFactory, sessionStorage, NavigationManager,

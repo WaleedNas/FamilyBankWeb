@@ -69,7 +69,10 @@
 </main>
     </NotAuthorized>
     <Authorized>
+        <h1>
         Already Logged In
+
+        </h1>
     </Authorized>
 </AuthorizeView>
 
@@ -78,7 +81,6 @@
     private UserLoginModel userLogin = new UserLoginModel();
     private string loadingMessage { get; set; }
     private string errorMessage { get; set; }
-    private bool IsAuthenticated { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -91,22 +93,6 @@
             }
         }
         catch(Exception ex)
-        {
-            ex.Message.ToString();
-        }
-    }
-
-    protected async Task OnAfterRenderAsync()
-    {
-        try
-        {
-            var token = await sessionStorage.GetItemAsync<string>("authToken");
-            if (token != null)
-            {
-                NavigationManager.NavigateTo("/");
-            }
-        }
-        catch (Exception ex)
         {
             ex.Message.ToString();
         }

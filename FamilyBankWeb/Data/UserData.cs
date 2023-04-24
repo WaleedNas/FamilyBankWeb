@@ -5,6 +5,7 @@ using Microsoft.Extensions.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 using Blazored.SessionStorage;
+using System;
 
 namespace FamilyBankWeb.Data
 {
@@ -21,7 +22,7 @@ namespace FamilyBankWeb.Data
         public async Task<UserModel> GetUser(int id)
         {
             var client = _httpClientFactory.CreateClient("Api");
-            var response = await client.GetAsync($"{id}");
+            var response = await client.GetAsync($"Users/{id}");
             response.EnsureSuccessStatusCode(); // response gets the json file
             var json = await response.Content.ReadAsStringAsync();
             var user = JsonSerializer.Deserialize<UserModel>(json);
@@ -59,6 +60,14 @@ namespace FamilyBankWeb.Data
                 }
             }
             return -1;
+        }
+
+        public Task<UserModel> GetUserFromContext(string claim)
+        {
+            string claimValue = claim;
+            string[] parts = claimValue?.Split(":");
+            int id = parts != null && parts.Length > 1 ? int.Parse(parts[1].Trim()) : 0;
+            return GetUser(id);
         }
     }
 }

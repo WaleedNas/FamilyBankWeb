@@ -3,7 +3,7 @@
 @inject ISessionStorageService sessionStorage
 @inject IHttpClientFactory clientFactory
 @inject NavigationManager NavigationManager
-
+@attribute [Authorize]
 
 <title>FamBank | Account Page</title>
 <style>
@@ -91,21 +91,32 @@
 @code {
     private UserModel user = new UserModel();
     private string errorMessage { get; set; }
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            user = await sessionStorage.GetItemAsync<UserModel>("user");
-            if (user == null)
+            UserData data = new UserData(clientFactory, sessionStorage);
+            if (authenticationState is not null)
             {
-                errorMessage = "Error";
+                var authState = await authenticationState;
+                if (authState.User.Identity.IsAuthenticated)
+                {
+                    string claimValue = authState.User.Claims.FirstOrDefault()?.ToString();
+                    user = await data.GetUserFromContext(claimValue);
+                }
+
             }
+
 
         }
         catch (Exception ex)
         {
             // Handle the exception here
-            errorMessage = ex.Message;
+            ex.Message.ToString();
         }
     }
 

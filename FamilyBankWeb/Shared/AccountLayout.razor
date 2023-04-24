@@ -54,11 +54,26 @@
 
 @code{
     private UserModel user = new UserModel();
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            user = await sessionStorage.GetItemAsync<UserModel>("user");
+            UserData data = new UserData(clientFactory, sessionStorage);
+            if (authenticationState is not null)
+            {
+                var authState = await authenticationState;
+                if (authState.User.Identity.IsAuthenticated)
+                {
+                    string claimValue = authState.User.Claims.FirstOrDefault()?.ToString();
+                    user = await data.GetUserFromContext(claimValue);
+                }
+
+            }
+
 
         }
         catch (Exception ex)
