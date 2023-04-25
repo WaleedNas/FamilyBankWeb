@@ -33,17 +33,19 @@
         <h1 class="accountHeader__h1">@user.firstName @user.lastName</h1>
         <nav class="accountHeader__nav">
             <ul class="accountHeader__list">
-                <li class="accountHeader__item">
-                    <a href="familyPage.html">Family</a>
+                <li class="accountHeader__item dropdown">
+                    <a href="#">Family</a>
+                    <ul>
+                        <li class="dropdown__li">
+                            <a href="/addMember"> Add Family Member</a>
+                        </li>
+                        <li class="dropdown__li">
+                            <a href="#"> Account Statistics</a>
+                        </li>
+                    </ul>
                 </li>
                 <li class="accountHeader__item">
-                    <a href="/addMember"> Add Family Member</a>
-                </li>
-                <li class="accountHeader__item">
-                    <a href="familyPage.html">Account Statistics</a>
-                </li>
-                <li class="accountHeader__item">
-                    <a href="/">Home</a>
+                    <a href="accountPage.html">Home</a>
                 </li>
             </ul>
         </nav>

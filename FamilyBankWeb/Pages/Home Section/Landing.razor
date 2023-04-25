@@ -26,10 +26,10 @@
             <Authorized>
 
             
-        <div class="header__text-box">
-            <h1 class="heading-primary">
-                <span class="heading-primary--sub">Welcome,</span>
-                <span class="heading-primary--main">@user.firstName</span>
+        <div class="header__text-box-account">
+            <h1 class="heading-primary-account">
+                <span class="heading-primary--sub-account">Welcome</span>
+                <span class="heading-primary--main-account">@user.firstName</span>
                 
             </h1>
             <div class="heading__appimg"></div>
@@ -64,6 +64,32 @@
             <div class="u-center-text u-margin-bottom-big">
                 <h2 class="heading-secondary">Your Accounts</h2>
             </div>
+            @{
+                    var matchedAccounts = from account in accounts
+                                          join user in creatorUsers on account.creatorID equals user.userID
+                                          select new { Account = account, Creator = user };
+            }
+            @foreach(var match in matchedAccounts){
+                    <div class="card">
+                  <div class="card-header">
+                       @if (match.Account.creatorID == user.userID)
+                       {
+                                <h3 class="card-title"> Your Account</h3>
+                        }
+                        else
+                        {
+                            <h3 class="card-title">@match.Creator.firstName @match.Creator.lastName's Account</h3>
+
+                        }
+
+                  </div>
+
+                  <div class="card-body">
+                    <!-- add more details as needed -->
+                    <a href="{{ route('account.details', $account->id) }}">View Details</a>
+                  </div>
+                </div>
+                }
           </section>
         </Authorized>
         <NotAuthorized>
@@ -183,6 +209,8 @@
 @code {
 
     private UserModel user = new UserModel();
+    private List<AccountModel> accounts = new List<AccountModel>();
+    private List<UserModel> creatorUsers = new List<UserModel>();
 
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationState { get; set; }
@@ -192,6 +220,7 @@
         try
         {
             UserData data = new UserData(clientFactory, sessionStorage);
+            AccountData accountData = new AccountData(clientFactory);
             if (authenticationState is not null)
             {
                 var authState = await authenticationState;
@@ -199,8 +228,17 @@
                 {
                     string claimValue = authState.User.Claims.FirstOrDefault()?.ToString();
                     user = await data.GetUserFromContext(claimValue);
+
+                    accounts = await accountData.GetAccountsForUser(user.userID);
+
+                    foreach (var account in accounts)
+                    {
+                        creatorUsers.Add(await data.GetUser(account.creatorID));
+                    }
+
+                    
+
                 }
-                
             }
 
 

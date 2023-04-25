@@ -35,17 +35,6 @@ namespace FamilyBankWeb.Data
             return await client.PostAsJsonAsync("Users", userModel);
         }
 
-        public async Task<bool> IsUserLoggedIn()
-        {
-            bool flag = false;
-            var result = await _sessionStorage.GetItemAsync<string>("authToken");
-            if (result != null)
-            {
-                flag = true;
-            }
-            return flag;
-        }
-
         public async Task<int> GetIdFromLogin(UserLoginModel userLogin)
         {
 
@@ -68,6 +57,16 @@ namespace FamilyBankWeb.Data
             string[] parts = claimValue?.Split(":");
             int id = parts != null && parts.Length > 1 ? int.Parse(parts[1].Trim()) : 0;
             return GetUser(id);
+        }
+
+        public async Task<List<UserModel>> GetUsersFromAccount(int id)
+        {
+            var client = _httpClientFactory.CreateClient("Api");
+            var response = await client.GetAsync($"Users/Account/{id}");
+            response.EnsureSuccessStatusCode(); // response gets the json file
+            var json = await response.Content.ReadAsStringAsync();
+            var users = JsonSerializer.Deserialize<List<UserModel>>(json);
+            return users;
         }
     }
 }

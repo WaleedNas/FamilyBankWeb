@@ -33,6 +33,7 @@
                                     placeholder="Username"
                                     id="username"
                                     @bind-Value="userLogin.username"
+                                    disabled="@IsSubmitted"
                                     required />
                             <label for="username" class="form__label">Username</label>
                         </div>
@@ -43,6 +44,7 @@
                                     placeholder="Password"
                                     id="password"
                                     @bind-Value="userLogin.password"
+                                    disabled="@IsSubmitted"
                                     required />
                             <label for="password" class="form__label">Password</label>
                         </div>
@@ -81,6 +83,7 @@
     private UserLoginModel userLogin = new UserLoginModel();
     private string loadingMessage { get; set; }
     private string errorMessage { get; set; }
+    private bool IsSubmitted { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -100,6 +103,7 @@
 
     private async Task HandleLogin()
     {
+        IsSubmitted = true;
         var auth = new AuthService(clientFactory, sessionStorage, NavigationManager,
         authStateProvider);
         loadingMessage = "Waiting for Response";
@@ -114,6 +118,7 @@
         {
             loadingMessage = "";
             errorMessage = "Incorrect Username or Password";
+            IsSubmitted = false;
         }
 
     }

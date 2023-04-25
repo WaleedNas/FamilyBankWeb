@@ -34,7 +34,8 @@
                                     class="form__input"
                                     placeholder="First name"
                                     id="firstname"
-                                    @bind-Value=userModel.firstName
+                                    @bind-Value="userModel.firstName"
+                                    disabled="@IsSubmitted"
                                     required />
                             <label for="firstname" class="form__label">First name</label>
                         </div>
@@ -44,7 +45,8 @@
                                     class="form__input"
                                     placeholder="Last name"
                                     id="lastname"
-                                    @bind-Value=userModel.lastName
+                                    @bind-Value="userModel.lastName"
+                                    disabled="@IsSubmitted"
                                     required />
                             <label for="lastname" class="form__label">Last name</label>
                         </div>
@@ -54,7 +56,8 @@
                                     class="form__input"
                                     placeholder="Username"
                                     id="username"
-                                    @bind-Value=userModel.username
+                                    @bind-Value="userModel.username"
+                                    disabled="@IsSubmitted"
                                     required />
                             <label for="username" class="form__label">Username</label>
                         </div>
@@ -64,7 +67,8 @@
                                     class="form__input"
                                     placeholder="Password"
                                     id="password"
-                                    @bind-Value=userModel.password
+                                    @bind-Value="userModel.password"
+                                    disabled="@IsSubmitted"
                                     required />
                             <label for="password" class="form__label">Password</label>
                         </div>
@@ -74,7 +78,8 @@
                                     class="form__input"
                                     placeholder="Date of Birth"
                                     id="dob"
-                                    @bind-Value=userModel.dateOfBirth
+                                    @bind-Value="userModel.dateOfBirth"
+                                    disabled="@IsSubmitted"
                                     required />
                             <label for="dob" class="form__label">Date of Birth</label>
                         </div>
@@ -84,7 +89,8 @@
                                     class="form__input"
                                     placeholder="Phone number"
                                     id="phone"
-                                    @bind-Value=userModel.mobileNumber
+                                    @bind-Value="userModel.mobileNumber"
+                                    disabled="@IsSubmitted"
                                     inputmode="numeric"
                                     required />
                             <label for="phone" class="form__label">Phone number</label>
@@ -114,6 +120,7 @@
     public string alertMessage { get; set; }
     public string loadingMessage { get; set; }
     public string errorMessage { get; set; }
+    public bool IsSubmitted {get ; set;}
 
 
     private async Task HandleSubmit()
@@ -121,6 +128,7 @@
         try
         {
             //code to submit user
+            IsSubmitted = true;
             var userData = new UserData(clientFactory, sessionStorage);
             var response = await userData.CreateUser(userModel);
             loadingMessage = "Waiting for Respnse";
@@ -142,10 +150,12 @@
             {
                 loadingMessage = "";
                 alertMessage = "Mobile Number is used";
+                IsSubmitted = false;
             } else
             {
                 loadingMessage = "";
                 alertMessage = "Username is used";
+                IsSubmitted = false;
             }
         }
         catch (Exception ex)
