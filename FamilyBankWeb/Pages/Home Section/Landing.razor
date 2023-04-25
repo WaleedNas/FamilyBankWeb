@@ -221,11 +221,13 @@
         {
             UserData data = new UserData(clientFactory, sessionStorage);
             AccountData accountData = new AccountData(clientFactory);
+            
             if (authenticationState is not null)
             {
                 var authState = await authenticationState;
                 if (authState.User.Identity.IsAuthenticated)
                 {
+                    
                     string claimValue = authState.User.Claims.FirstOrDefault()?.ToString();
                     user = await data.GetUserFromContext(claimValue);
 

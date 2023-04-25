@@ -1,4 +1,5 @@
 ﻿using Blazored.SessionStorage;
+using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -15,7 +16,7 @@ namespace FamilyBankWeb.Services
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             string token = await _sessionStorage.GetItemAsync<string>("authToken");
-            //string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxMyIsIm5iZiI6MTY4MjI5MTkwNiwiZXhwIjoxNjgyMjkzNzA2LCJpYXQiOjE2ODIyOTE5MDZ9.PjfqZ1H6-8KId5ss65G6EL5dLV6GB5LJ2lBSv9isjDg";
+            //string roleValue = await _sessionStorage.GetItemAsync<string>("role");
 
             var identity = new ClaimsIdentity();
             if (token?.Length > 0)
@@ -25,6 +26,7 @@ namespace FamilyBankWeb.Services
             }
 
             var user = new ClaimsPrincipal(identity);
+
             var state = new AuthenticationState(user);
 
             NotifyAuthenticationStateChanged(Task.FromResult(state));
