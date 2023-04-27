@@ -1,4 +1,162 @@
-﻿<h3>Bills</h3>
+﻿@page "/paybills"
+@layout AccountLayout
+
+<main>
+<section class="section-tours"
+         id="section-tours"
+         style="margin-top: 0.1rem">
+    <div class="u-center-text u-margin-bottom-big"
+         style="margin-top: -19rem">
+        <h2 class="heading-secondary" id="section-packages">Pay Bills</h2>
+    </div>
+
+        <div class="row" style="margin-top: -2rem">
+
+            <div class="col-1-of-3">
+                <div class="card">
+                    <div class="card__side card__side--front">
+                        <div class="card__picture card__picture--1">&nbsp;</div>
+                        <h4 class="card__heading">
+                            <span class="card__heading-span card__heading-span--1">Electricity</span>
+                        </h4>
+
+                    </div>
+                    <div class="card__side card__side--back card__side--back-1">
+                        <div class="card__cta">
+                            <div class="card__price-box">
+                                <div class="paybillsdetailsdiv"
+                                     style="margin-bottom: 2rem">
+                                    <input class="paybillsdetailsdivcheckbox"
+                                           type="checkbox"
+                                           id="automatic-payment"
+                                           name="automatic-payment" />
+                                    <label for="automatic-payment"
+                                           class="paybillsdetailsdivlabel">Automatic Monthly Payment</label>
+                                </div>
+                                <!-- <p class="card__price-only">
+                                  monthly automatic payment
+                                </p>
+                                <p class="card__price-value">disabled</p> -->
+                                <div class="form__group"
+                                     style="
+                            margin-bottom: -5rem;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            flex-direction: column;
+                          ">
+                                    <input type="text"
+                                           class="form__input"
+                                           placeholder="Amount"
+                                           id="amount" />
+                                    <label for="amount" class="form__label">Amount</label>
+                                </div>
+                            </div>
+                            <a href="paybillsdetails.html" class="btn btn--white">Pay Bill</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-1-of-3">
+                <div class="card">
+                    <div class="card__side card__side--front">
+                        <div class="card__picture card__picture--2">&nbsp;</div>
+                        <h4 class="card__heading">
+                            <span class="card__heading-span card__heading-span--2">Water</span>
+                        </h4>
+
+                    </div>
+                    <div class="card__side card__side--back card__side--back-2">
+                        <div class="card__cta">
+                            <div class="card__price-box">
+                                <div class="paybillsdetailsdiv"
+                                     style="margin-bottom: 2rem">
+                                    <input class="paybillsdetailsdivcheckbox"
+                                           type="checkbox"
+                                           id="automatic-payment"
+                                           name="automatic-payment" />
+                                    <label for="automatic-payment"
+                                           class="paybillsdetailsdivlabel">Automatic Monthly Payment</label>
+                                </div>
+                                <!-- <p class="card__price-only">
+                                  monthly automatic payment
+                                </p>
+                                <p class="card__price-value">disabled</p> -->
+                                <div class="form__group"
+                                     style="
+                            margin-bottom: -5rem;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            flex-direction: column;
+                          ">
+                                    <input type="text"
+                                           class="form__input"
+                                           placeholder="Amount"
+                                           id="amount" />
+                                    <label for="amount" class="form__label">Amount</label>
+                                </div>
+                            </div>
+                            <a href="paybillsdetails.html" class="btn btn--white">Pay Bill</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-1-of-3">
+                <div class="card">
+                    <div class="card__side card__side--front">
+                        <div class="card__picture card__picture--3">&nbsp;</div>
+                        <h4 class="card__heading">
+                            <span class="card__heading-span card__heading-span--3">Internet</span>
+                        </h4>
+
+                    </div>
+                    <div class="card__side card__side--back card__side--back-3">
+                        <div class="card__cta">
+                            <div class="card__price-box">
+                                <div class="paybillsdetailsdiv"
+                                     style="margin-bottom: 2rem">
+                                    <input class="paybillsdetailsdivcheckbox"
+                                           type="checkbox"
+                                           id="automatic-payment"
+                                           name="automatic-payment" />
+                                    <label for="automatic-payment"
+                                           class="paybillsdetailsdivlabel">Automatic Monthly Payment</label>
+                                </div>
+                                <!-- <p class="card__price-only">
+                                  monthly automatic payment
+                                </p>
+                                <p class="card__price-value">disabled</p> -->
+                                <div class="form__group"
+                                     style="
+                            margin-bottom: -5rem;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            flex-direction: column;
+                          ">
+                                    <input type="text"
+                                           class="form__input"
+                                           placeholder="Amount"
+                                           id="amount" />
+                                    <label for="amount" class="form__label">Amount</label>
+                                </div>
+                            </div>
+                            <a href="signup.html" class="btn btn--white">Pay Bill</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <div class="u-center-text u-margin-top-huge">
+        <a href="/paybillsdetails" class="btn btn--green">Other Bills</a>
+    </div>
+</section>
+
+</main>
 
 @code {
 

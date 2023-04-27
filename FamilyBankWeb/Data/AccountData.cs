@@ -23,14 +23,35 @@ namespace FamilyBankWeb.Data
             return await client.PostAsJsonAsync("/Accounts/User", accountUser);
         }
 
-        public async Task<List<AccountModel>> GetAccountsForUser(int id)
+        public async Task<List<AccountUserModel>> GetAccountUsers(int id)
         {
             var client = _httpClientFactory.CreateClient("Api");
             var response = await client.GetAsync($"Accounts/User/{id}");
             response.EnsureSuccessStatusCode(); // response gets the json file
             var json = await response.Content.ReadAsStringAsync();
-            var accounts = JsonSerializer.Deserialize<List<AccountModel>>(json);
-            return accounts;
+            var accountUsers = JsonSerializer.Deserialize<List<AccountUserModel>>(json);
+            return accountUsers;
         }
+
+        public async Task<AccountModel> GetAccount(int id)
+        {
+            var client = _httpClientFactory.CreateClient("Api");
+            var response = await client.GetAsync($"Accounts/{id}");
+            response.EnsureSuccessStatusCode(); // response gets the json file
+            var json = await response.Content.ReadAsStringAsync();
+            var account = JsonSerializer.Deserialize<AccountModel>(json);
+            return account;
+        }
+
+        public async Task<double> GetBalance(int accountID, int userID)
+        {
+            var client = _httpClientFactory.CreateClient("Api");
+            var response = await client.GetAsync($"Users/Allowance/{userID}/{accountID}");
+            response.EnsureSuccessStatusCode(); // response gets the json file
+            var json = await response.Content.ReadAsStringAsync();
+            var account = JsonSerializer.Deserialize<double>(json);
+            return account;
+        }
+
     }
 }

@@ -1,0 +1,60 @@
+﻿@page "/paybillsdetails"
+@layout AccountLayout
+
+
+<section class="paybills">
+    <h2 class="heading-secondary"
+        style="
+              font-size: 3rem;
+              margin-top: 2rem;
+              margin-bottom: 2rem;
+              margin-left: 0;
+              margin-right: 0;
+            ">
+        Pay your bill
+    </h2>
+    <!-- fix text fields width & position -->
+    <div class="paybills__form">
+        <form action="/pay" method="POST">
+            <div class="form__group paybillsdetailsform">
+                <input type="text"
+                       class="form__input"
+                       placeholder="Type"
+                       id="Type" />
+                <label for="Type" class="form__label">Type</label>
+            </div>
+            <div class="form__group paybillsdetailsform">
+                <input type="text"
+                       class="form__input"
+                       placeholder="Bill Number"
+                       id="billNumber" />
+                <label for="accountNumber" class="form__label">Bill Number</label>
+            </div>
+            <div class="form__group paybillsdetailsform">
+                <input type="text"
+                       class="form__input"
+                       placeholder="Amount"
+                       id="amount" />
+                <label for="amount" class="form__label">Amount</label>
+            </div>
+            <!-- style this class="form__label"-->
+            <div class="paybillsdetailsdiv" style="margin-bottom: 2rem">
+                <input class="paybillsdetailsdivcheckbox"
+                       type="checkbox"
+                       id="automatic-payment"
+                       name="automatic-payment" />
+                <label for="automatic-payment" class="paybillsdetailsdivlabel">Automatic Monthly Payment</label>
+            </div>
+            <!-- put this in center -->
+            <div class="form__group">
+                <a href="/paybills" class="btn btn--green">&larr; Back</a>
+                <button class="btn btn--green">Submit &rarr;</button>
+            </div>
+            <!-- tell waleed to add option that user must turn off automatic payment if they want to pay same bill again (pop up) -->
+        </form>
+    </div>
+</section>
+
+@code {
+
+}

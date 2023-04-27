@@ -3,6 +3,7 @@
 @inject IHttpClientFactory clientFactory
 @inject ISessionStorageService sessionStorage
 @inject CustomAuthStateProvider authStateProvider
+@inject IDataProtectionProvider dataProtection
 
 
 <head>
@@ -41,9 +42,6 @@
                 <Authorized>
                 <li class="navigation__item">
                     <a href="/" class="navigation__link"><span></span>Accounts</a>
-                </li>
-                <li class="navigation__item">
-                    <a href="/createAcc" class="navigation__link"><span></span>Create Account</a>
                 </li>
                 <li class="navigation__item">
                     <a href="/" @onclick="HandleSignOut" class="navigation__link"><span></span>Sign Out</a>
@@ -128,7 +126,7 @@
     private async Task HandleSignOut()
     {
         var auth = new AuthService(clientFactory, sessionStorage, NavigationManager,
-        authStateProvider);
+        authStateProvider, dataProtection);
         await auth.Logout();
         
     }

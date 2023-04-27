@@ -251,9 +251,9 @@ body {
   perspective: 150rem;
   -moz-perspective: 150rem;
   position: relative;
-  height: 52rem; }
+  height: 30rem; }
   .card__side {
-    height: 52rem;
+    height: 30rem;
     transition: all .8s ease;
     position: absolute;
     top: 0;
@@ -272,8 +272,13 @@ body {
         background-image: linear-gradient(to right bottom, #ffb900, #ff7730); }
       .card__side--back-2 {
         background-image: linear-gradient(to right bottom, #7ed56f, #28b485); }
-      .card__side--back-3 {
-        background-image: linear-gradient(to right bottom, #2998ff, #5643fa); }
+      .card__side--back-general {
+    background-color: #a4a4a4;
+       }
+
+.card__side--back-3 {
+    background-image: linear-gradient(to right bottom, #A0E7E5, #46e0ff);
+}
   .card:hover .card__side--front {
     transform: rotateY(-180deg); }
   .card:hover .card__side--back {
@@ -289,9 +294,9 @@ body {
     .card__picture--1 {
       background-image: linear-gradient(to right bottom, #ffb900, #ff7730), url(../img/nat-5.jpg); }
     .card__picture--2 {
-      background-image: linear-gradient(to right bottom, #7ed56f, #28b485), url(../img/nat-6.jpg); }
+      background-image: linear-gradient(to right bottom, #7ed56f, #28b485), url(../img/nat-6.png); }
     .card__picture--3 {
-      background-image: linear-gradient(to right bottom, #2998ff, #5643fa), url(../img/nat-7.jpg); }
+      background-image: linear-gradient(to right bottom, #2998ff, #5643fa), url(../img/nat-7.png); }
   .card__heading {
     font-size: 2.8rem;
     font-weight: 300;
@@ -682,8 +687,10 @@ body {
     list-style: none;
     display: flex;
     margin: 0; }
-  .accountHeader__item {
-    margin-left: 1.5rem; }
+.accountHeader__item {
+    margin-left: 1.5rem;
+    margin-right: 10.5rem;
+}
 
 .dropdown ul {
     display: none;
@@ -694,18 +701,20 @@ body {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     z-index: 1;
 }
- .dropdown li{
-    margin: 1.5rem;
-    border-bottom: 1px solid #ccc;
-    align-self: center;
-}
+
+    .dropdown ul li {
+        margin: 1rem;
+        margin-right: 7rem;
+        border-bottom: 1px solid #ccc;
+        align-self: center;
+        
+    }
 
 .dropdown:hover ul {
     display: block;
-    background-color: dimgray;
+    background-color: #333;
     transition: all 0.2s;
     height: auto;
-    width: auto;
 }
 
 .home {
@@ -1283,6 +1292,67 @@ body {
 @media only screen and (max-width: 90rem) {
     .header__text-box-account {
         left: 50%;
+    }
+}
+
+.paybillsdetailsdiv {
+    font-size: 1.5rem;
+    color: #777;
+}
+
+.paybillsdetailsdivcheckbox {
+    /* hide the default checkbox appearance */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    /* set the size of the checkbox */
+    width: 1.5rem;
+    height: 1.5rem;
+    /* set the background color of the checkbox */
+    background-color: #fff;
+    /* add a border */
+    border: 1px solid #999;
+    /* add some padding */
+    padding: 0.3rem;
+    /* position the checkbox relative to the label */
+    position: relative;
+    /* add a margin to the right of the checkbox */
+    margin-right: 0.5rem;
+    /* add a transition effect when the checkbox state changes */
+    transition: background-color 0.3s ease-out;
+}
+
+    .paybillsdetailsdivcheckbox:checked {
+        /* change the background color when the checkbox is checked */
+        background-color: #55c57a;
+    }
+
+.paybillsdetailsdivlabel {
+    /* position the label relative to the checkbox */
+    position: relative;
+    top: -0.2rem;
+    /* add some cursor styling to the label */
+    cursor: pointer;
+}
+
+.paybillsdetailsform {
+    width: 50vw;
+}
+
+.paybills {
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #eee;
+}
+
+.paybills__form {
+    @media only screen and (min-width: 56.25em) {
+        position: relative;
+        right: -3rem;
+        /* CSS rules for big screens */
     }
 }
 

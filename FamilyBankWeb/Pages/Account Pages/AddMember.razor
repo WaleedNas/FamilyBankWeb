@@ -2,7 +2,7 @@
 @layout AccountLayout
 @inject IHttpClientFactory clientFactory
 @inject ISessionStorageService sessionStorage
-@attribute [Authorize]
+@attribute [Authorize (Roles ="Main")]
 
 <div class="booke">
                 <div class="book__form">

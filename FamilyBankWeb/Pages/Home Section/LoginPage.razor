@@ -4,6 +4,7 @@
 @inject NavigationManager NavigationManager
 @inject ISessionStorageService sessionStorage
 @inject CustomAuthStateProvider authStateProvider
+@inject IDataProtectionProvider dataProtection
 
 <PageTitle>Sign In</PageTitle>
 
@@ -105,7 +106,7 @@
     {
         IsSubmitted = true;
         var auth = new AuthService(clientFactory, sessionStorage, NavigationManager,
-        authStateProvider);
+        authStateProvider, dataProtection);
         loadingMessage = "Waiting for Response";
         errorMessage = "";
         var result = await auth.AuthenticateAsync(userLogin);

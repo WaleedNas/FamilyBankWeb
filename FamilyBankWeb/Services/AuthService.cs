@@ -8,6 +8,7 @@ using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components;
 using System.Net.NetworkInformation;
 using FamilyBankWeb.Services;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace FamilyBankWeb.Services
 {
@@ -17,14 +18,16 @@ namespace FamilyBankWeb.Services
         private readonly ISessionStorageService _sessionStorage;
         private readonly NavigationManager _navigationManager;
         private readonly CustomAuthStateProvider authStateProvider;
+        private readonly IDataProtectionProvider dataProtection;
 
         public AuthService(IHttpClientFactory clientFactory, ISessionStorageService sessionStorage,
-            NavigationManager navigationManager,  CustomAuthStateProvider authStateProvider)
+            NavigationManager navigationManager, CustomAuthStateProvider authStateProvider, IDataProtectionProvider dataProtection)
         {
             _clientFactory = clientFactory;
             _sessionStorage = sessionStorage;
             _navigationManager = navigationManager;
             this.authStateProvider = authStateProvider;
+            this.dataProtection = dataProtection;
         }
 
         public async Task<bool> AuthenticateAsync(UserLoginModel userLogin)
@@ -39,9 +42,9 @@ namespace FamilyBankWeb.Services
 
                 if (tokenResponse != null && !string.IsNullOrWhiteSpace(tokenResponse.token))
                 {
-
-                    await _sessionStorage.SetItemAsync("authToken", tokenResponse.token);
-                    await _sessionStorage.SetItemAsync("user", tokenResponse.user);
+                    var protector = dataProtection.CreateProtector("TheProtector");
+                    string protectedToken = protector.Protect(tokenResponse.token);
+                    await _sessionStorage.SetItemAsync("authToken", protectedToken);
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", tokenResponse.token);
                     await authStateProvider.GetAuthenticationStateAsync();
                     return true;
@@ -56,7 +59,8 @@ namespace FamilyBankWeb.Services
 
             var client = _clientFactory.CreateClient("Api");
             await _sessionStorage.RemoveItemAsync("authToken");
-            await _sessionStorage.RemoveItemAsync("user");
+            await _sessionStorage.RemoveItemAsync("role");
+            await _sessionStorage.RemoveItemAsync("accountID");
             client.DefaultRequestHeaders.Authorization = null;
             _navigationManager.NavigateTo("/signin");
             await authStateProvider.GetAuthenticationStateAsync();

@@ -34,10 +34,13 @@
         <nav class="accountHeader__nav">
             <ul class="accountHeader__list">
                 <li class="accountHeader__item dropdown">
-                    <a href="#">Family</a>
+                    <a href="/">Family</a>
                     <ul>
                         <li class="dropdown__li">
-                            <a href="/addMember"> Add Family Member</a>
+                            <a href="/addMember">Add Family Member</a>
+                        </li>
+                        <li class="dropdown__li">
+                            <a href="/account">Account</a>
                         </li>
                         <li class="dropdown__li">
                             <a href="#"> Account Statistics</a>
@@ -45,7 +48,7 @@
                     </ul>
                 </li>
                 <li class="accountHeader__item">
-                    <a href="accountPage.html">Home</a>
+                    <a href="/">Home</a>
                 </li>
             </ul>
         </nav>
@@ -60,6 +63,8 @@
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationState { get; set; }
 
+ 
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -70,7 +75,7 @@
                 var authState = await authenticationState;
                 if (authState.User.Identity.IsAuthenticated)
                 {
-                    string claimValue = authState.User.Claims.FirstOrDefault()?.ToString();
+                    string claimValue = authState.User.Claims.ElementAtOrDefault(1)?.ToString();
                     user = await data.GetUserFromContext(claimValue);
                 }
 
