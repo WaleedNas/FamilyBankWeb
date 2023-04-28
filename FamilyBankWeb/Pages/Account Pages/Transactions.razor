@@ -1,5 +1,131 @@
-﻿<h3>Transactions</h3>
+﻿@page "/statement"
+@inject ISessionStorageService sessionStorage
+@inject IHttpClientFactory clientFactory
+@inject NavigationManager NavigationManager
+@inject IDataProtectionProvider dataProtection
+@attribute [Authorize (Roles="Main, Sub")]
+
+@using System.Globalization
+
+<style>
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+    th, td {
+        padding: 0.5rem;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+</style>
+
+<h3>Statement of Transactions</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Debits</th>
+            <th>Credits</th>
+            <th>Balance</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (transactions != null && transactions.Any())
+        {
+            double balance = 0;
+            foreach (var transaction in transactions.OrderBy(t => t.transactionDate))
+            {
+                double amount = transaction.debit ? -transaction.amount : transaction.amount;
+                balance += amount;
+
+                <tr>
+                    <td>@transaction.transactionDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)</td>
+                    <td>@transaction.title</td>
+                    <td>@(transaction.debit ? transaction.amount.ToString("N2", CultureInfo.InvariantCulture) : "")</td>
+                    <td>@(transaction.debit ? "" : transaction.amount.ToString("N2", CultureInfo.InvariantCulture))</td>
+                    <td>@balance.ToString("N2", CultureInfo.InvariantCulture)</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="5">No transactions found</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="text-center" style="margin-top:5rem">
+    <a href="/account" class="btn btn--green">&larr; Back</a>
+</div>
 
 @code {
+    private List<TransactionModel> transactions = new List<TransactionModel>();
+    private List<TransactionModel> subTransactions = new List<TransactionModel>();
+    int accountID { get; set; }
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+    private UserModel user = new UserModel();
 
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            UserData data = new UserData(clientFactory, sessionStorage);
+            TransactionData transactionData = new TransactionData(clientFactory);
+            var accountIDString_p = await sessionStorage.GetItemAsync<string>("accountID");
+            var protector = dataProtection.CreateProtector("TheProtector");
+            var accountIDString = protector.Unprotect(accountIDString_p);
+            accountID = int.Parse(accountIDString);
+
+
+            if (authenticationState is not null)
+            {
+                var authState = await authenticationState;
+                if (authState.User.Identity.IsAuthenticated)
+                {
+
+                    string claimValue = authState.User.Claims.ElementAtOrDefault(1)?.ToString();
+                    user = await data.GetUserFromContext(claimValue);
+
+                    try
+                    {
+                        transactions = await transactionData.GetTransactionsForAccount(accountID);
+                        subTransactions = await transactionData.GetUserTransactionsForAccount(user.userID, accountID);
+
+                    }
+                    catch (Exception e)
+                    {
+
+                    }
+
+                    transactions = transactions.OrderByDescending(t => t.transactionDate).ToList();
+                    subTransactions = subTransactions.OrderByDescending(t => t.transactionDate).ToList();
+
+                }
+            }
+
+
+        }
+        catch (Exception ex)
+        {
+            // Handle the exception here
+            ex.Message.ToString();
+        }
+    }
 }

@@ -121,9 +121,12 @@
             </div>
                 @{
                     var matchedAccounts = (from account in accounts
-                                          join user in creatorUsers on account.creatorID equals user.userID
-                                          join accountUser in accountUsers on account.accountID equals accountUser.accountID
-                                          select new { Account = account, Creator = user, User = accountUser }).Distinct();
+                                           join user in creatorUsers on account.creatorID equals user.userID
+                                           join accountUser in accountUsers on account.accountID equals accountUser.accountID
+                                           group new { Account = account, Creator = user, User = accountUser } by new { account.accountID, user.userID } into groups
+                                           select groups.First()).Distinct();
+
+                        matchedAccounts = matchedAccounts.OrderBy(x => x.Account.createdAt);
                 }
             <div class="row">
             @foreach(var match in matchedAccounts){
@@ -160,7 +163,16 @@
                                     <div class="card__cta">
                                         <div class="card__price-box">
                                             <p class="card__price-only">Balance Available</p>
+                                            @if (match.User.isMain)
+                                            {
+                                            <p class="card__price-value">AED @match.Account.balance</p>
+                                                
+                                            }
+                                            else
+                                            {
                                             <p class="card__price-value">AED @match.User.balanceAvailable</p>
+                                                
+                                            }
                                         </div>
                                         <button @onclick="(e) => HandleEnter(match.User.accountID, match.User.isMain)" style ="margin-top:-8rem"class="btn btn--white">Enter</button>
                                     </div>

@@ -59,7 +59,7 @@
             <!-- put this in center -->
             <div class="form__group">
                 <a href="/paybills" class="btn btn--green">&larr; Back</a>
-                <button class="btn btn--green">Submit &rarr;</button>
+                <a @onclick="HandleSubmit" class="btn btn--green">Submit &rarr;</a>
             </div>
             <!-- tell waleed to add option that user must turn off automatic payment if they want to pay same bill again (pop up) -->
         </form>
@@ -138,7 +138,6 @@
                 if (response.IsSuccessStatusCode)
                 {
                     alert = "Payment Added";
-                    await Task.Delay(2000); // Wait for 2 seconds
                     alert = "redirecting...";
                     NavigationManager.NavigateTo("/paybills");
                 }
