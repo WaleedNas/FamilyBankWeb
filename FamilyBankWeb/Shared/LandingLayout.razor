@@ -1,10 +1,11 @@
-﻿@inherits LayoutComponentBase
+﻿@using FamilyBankWeb.Helpers
+@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 @inject IHttpClientFactory clientFactory
 @inject ISessionStorageService sessionStorage
 @inject CustomAuthStateProvider authStateProvider
 @inject IDataProtectionProvider dataProtection
-
+@inject IJSRuntime JS
 
 <head>
     <meta charset="UTF-8" />
@@ -20,8 +21,8 @@
 
     <link rel="stylesheet" href="css/style.css" />
     <link rel="shortcut icon" type="image/png" href="img/favicon.png" />
-
-    
+    <link rel="stylesheet" href="css/chatbotStyle.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
 </head>
 
 <div class="navigation">
@@ -120,16 +121,62 @@
 
 </AuthorizeView>
 
-@code{
+<div id="chat-circle" class="btn btn-raised">
+    <div id="chat-overlay"></div>
+    <i class="material-icons">chatbubbleonline</i>
+</div>
 
+<div class="chat-box">
+    <div class="chat-box-header">
+        ChatBot
+        <span class="chat-box-toggle"><i class="material-icons">close</i></span>
+    </div>
+    <div class="chat-box-body">
+        <div class="chat-box-overlay">
+        </div>
+        <div class="chat-logs">
+        </div><!--chat-log -->
+    </div>
+    <div class="chat-input">
+        <form autocomplete="off" action="#" onsubmit="return false">
+            <input type="text" id="chat-input" placeholder="Send a message..."/>
+            <button type="button" class="chat-submit" id="chat-submit" @onclick="@(async () => await OnSubmit())"><i class="material-icons">send</i></button>
+        </form>
+    </div>
+</div>
+
+@code{
 
     private async Task HandleSignOut()
     {
         var auth = new AuthService(clientFactory, sessionStorage, NavigationManager,
         authStateProvider, dataProtection);
         await auth.Logout();
-        
+
     }
+
+    protected override async Task OnInitializedAsync()
+    {
+        //var module = await JS.InvokeAsync<IJSObjectReference>("chatbot", "./js/chatbot.js");
+        await Task.Delay(1000);
+
+        GptCompletion.Initialize(false);
+        await JS.InvokeVoidAsync("onLoad");
+    }
+
+    private async Task OnSubmit()
+    {
+        await JS.InvokeVoidAsync("onSubmit", DotNetObjectReference.Create(this));
+    }
+
+    [JSInvokable]
+    public async Task SendToChatbot(string input)
+    {
+        var response = await GptCompletion.AskChatbot(input);
+        await JS.InvokeVoidAsync("chatbotReply", response);
+    }
+    
 
 }
 
+```

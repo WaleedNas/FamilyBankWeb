@@ -1,11 +1,18 @@
 ﻿@page "/account"
+@using FamilyBankWeb.Helpers
 @layout AccountLayout
 @inject ISessionStorageService sessionStorage
 @inject IHttpClientFactory clientFactory
 @inject NavigationManager NavigationManager
 @inject IDataProtectionProvider dataProtection
+@inject IJSRuntime JS
 @attribute [Authorize (Roles ="Main, Sub")]
 <title>FamBank | Account Page</title>
+
+<head>
+    <link rel="stylesheet" href="css/chatbotStyle.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+</head>
 
 <main>
 
@@ -66,6 +73,31 @@
     </section>
 </main>
 
+<div id="chat-circle" class="btn btn-raised">
+    <div id="chat-overlay"></div>
+    <i class="material-icons">chatbubbleonline</i>
+</div>
+
+<div class="chat-box">
+    <div class="chat-box-header">
+        ChatBot
+        <span class="chat-box-toggle"><i class="material-icons">close</i></span>
+    </div>
+    <div class="chat-box-body">
+        <div class="chat-box-overlay">
+        </div>
+        <div class="chat-logs">
+        </div><!--chat-log -->
+    </div>
+    <div class="chat-input">
+        <form autocomplete="off" action="#" onsubmit="return false">
+            <input type="text" id="chat-input" placeholder="Send a message..." />
+            <button type="button" class="chat-submit" id="chat-submit" @onclick="@(async () => await OnSubmit())"><i class="material-icons">send</i></button>
+        </form>
+    </div>
+</div>
+
+
 @code {
     private UserModel user = new UserModel();
     private AccountModel accountModel = new AccountModel();
@@ -113,5 +145,24 @@
             // Handle the exception here
             ex.Message.ToString();
         }
+
+        await Task.Delay(1000);
+
+        GptCompletion.Initialize(true);
+        await JS.InvokeVoidAsync("onLoad");
+
     }
+
+    private async Task OnSubmit()
+    {
+        await JS.InvokeVoidAsync("onSubmit", DotNetObjectReference.Create(this));
+    }
+
+    [JSInvokable]
+    public async Task SendToChatbot(string input)
+    {
+        var response = await GptCompletion.AskChatbot(input);
+        await JS.InvokeVoidAsync("chatbotReply", response);
+    }
+
 }
