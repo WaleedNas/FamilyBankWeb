@@ -2,6 +2,7 @@
 @layout AccountLayout
 @inject IHttpClientFactory clientFactory
 @inject ISessionStorageService sessionStorage
+@inject IDataProtectionProvider dataProtection
 @attribute [Authorize (Roles ="Main")]
 
 <div class="booke">
@@ -11,7 +12,7 @@
                         <div class="u-margin-bottom-medium">
                             <h2 class="heading-secondary">Add New Member</h2>
                         </div>
-
+                        <h3>Warning: Add an existing User</h3>
                         <div class="form__group" >
                             <InputText
                                     class="form__input"
@@ -24,12 +25,13 @@
 
                     <div class="form__group" 
                             <InputText
+                                    type="password"
                                     class="form__input"
                                     placeholder="Password"
                                     id="password"
                                     @bind-Value=addMemberModel.password
                                     required />
-                            <label for="password" class="form__label">Password</label>
+                            <label for="password" class="form__label">User's Password</label>
                         </div>
 
                     <div class="form__group">
@@ -60,7 +62,7 @@
                         </div>
 
                         <div class="form__group" style="margin-top:1rem;">
-
+                            <h3>@loadingMessage</h3>
                             <button type="submit" class="btn btn--green">Add Member &rarr;</button>
                         </div>
 
@@ -72,11 +74,30 @@
     AccountUserModel accountUserModel = new AccountUserModel();
     UserLoginModel userLoginModel = new UserLoginModel();
     AddMemberModel addMemberModel = new AddMemberModel();
+    int accountID { get; set; }
+    string loadingMessage { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var accountIDString_p = await sessionStorage.GetItemAsync<string>("accountID");
+            var protector = dataProtection.CreateProtector("TheProtector");
+            var accountIDString = protector.Unprotect(accountIDString_p);
+            accountID = int.Parse(accountIDString);
+
+        } catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+
     private async Task HandleSubmit()
     {
         try
         {
-
+            loadingMessage = "Waiting for response";
             UserData userData = new UserData(clientFactory, sessionStorage);
             AccountData accountData = new AccountData(clientFactory);
             userLoginModel.username = addMemberModel.username;
@@ -92,10 +113,26 @@
             }
 
             int userID = await userData.GetIdFromLogin(userLoginModel);
-            accountUserModel.userID = userID;
-            //ToDo: enter account Id into accountUser
-            await accountData.CreateAccountUser(accountUserModel); 
+            if (userID != -1)
+            {
+                accountUserModel.userID = userID;
+                accountUserModel.accountID = accountID;
+                var response = await accountData.CreateAccountUser(accountUserModel);
+                if (response.IsSuccessStatusCode && userID != -1)
+                {
+                    loadingMessage = "Account Successfully Added";
+                }
+                else
+                {
+                    loadingMessage = "Incorrect Username or password";
+                }
+            }
+            else
+            {
+                loadingMessage = "Incorrect Username or password";
+            }
 
+            
         }
         catch (Exception ex)
         {

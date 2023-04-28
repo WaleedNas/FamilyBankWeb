@@ -13,14 +13,14 @@
     <section id="home">
         <div class="home__balance">
             <h3>Balance:</h3>
-            <p>$@Balance</p>
+            <p>AED @Balance</p>
         </div>
 
         <div class="credit-card">
             <div class="credit-card__inner">
                 <div class="credit-card__front">
                     <h2 class="credit-card__title">FamBank Credit Card</h2>
-                    <div class="credit-card__number">@card.cardNumber</div>
+                    <div class="credit-card__number">@cardNum</div>
                     <div class="credit-card__details">
                         <div class="credit-card__detail">
                             <div class="credit-card__label">Cardholder Name</div>
@@ -28,7 +28,7 @@
                         </div>
                         <div class="credit-card__detail">
                             <div class="credit-card__label">Expiration Date</div>
-                            <div class="credit-card__value">@card.expiryDate</div>
+                            <div class="credit-card__value">@card.expiryDate.ToString("MM/yy")</div>
                         </div>
                     </div>
                 </div>
@@ -58,7 +58,7 @@
             <ul>
                 @foreach (var transaction in transactions)
 				{
-					<li>@transaction.createdDate - $@transaction.amount</li>
+					<li>@transaction.transactionDate - $@transaction.amount</li>
 				}
             </ul>
             <a class="home__view-transactions btn"> View All Transactions </a>
@@ -76,7 +76,7 @@
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationState { get; set; }
     private double Balance { get; set; }
-
+    string cardNum { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -100,6 +100,12 @@
                     string claimValue = authState.User.Claims.ElementAtOrDefault(1)?.ToString();
                     user = await data.GetUserFromContext(claimValue);
                     card = await cardData.GetAccountCard(accountID);
+                    //give the card number string a space every four characters and assign it to cardNum
+                    cardNum = card.cardNumber;
+                    cardNum = cardNum.Insert(4, " ");
+                    cardNum = cardNum.Insert(9, " ");
+                    cardNum = cardNum.Insert(14, " ");
+
                     accountModel = await accountData.GetAccount(accountID);
                     Balance = await accountData.GetBalance(accountID, user.userID);
 

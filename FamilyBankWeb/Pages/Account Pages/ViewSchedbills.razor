@@ -1,0 +1,111 @@
+﻿@page "/viewSchedbills"
+@layout AccountLayout
+@inject ISessionStorageService sessionStorage
+@inject IHttpClientFactory clientFactory
+@inject NavigationManager NavigationManager
+@inject IDataProtectionProvider dataProtection
+@attribute [Authorize(Roles ="Main")]
+
+<style>
+    .item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.8rem;
+  padding: 1rem;
+  margin: 0.5rem;
+  border: 1px solid #ccc;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+}
+
+.name {
+    font-size: 1.8rem;
+    margin-right: 80rem;
+}
+
+.delete {
+  margin-right: 10px;
+  background-color: #f44336;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.update {
+  background-color: #4CAF50;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.delete:hover {
+  background-color: #f44336cc;
+}
+
+.update:hover {
+  background-color: #4CAF50cc;
+}
+</style>
+<section class="paybills">
+    <h2 class="heading-secondary"
+        style="
+              font-size: 3rem;
+              margin-top: -30rem;
+              margin-bottom: 3rem;
+              margin-left: 0;
+              margin-right: 0;
+            ">
+        View Scheduled Bills
+    </h2>
+    
+    @foreach (var bill in scheduledTransactions)
+    {
+        <div class="item">
+        <span class="name">@bill.title - @bill.description AED @bill.amount Monthly</span>
+          <div class="actions">
+            <button class="delete">Delete</button>
+            <button class="update">Update</button>
+          </div>
+        </div>
+
+    }
+
+    
+</section>
+
+@code {
+
+
+    int accountID { get; set; }
+    string loadingMessage { get; set; }
+    private UserModel user = new UserModel();
+    private List<ScheduledTransactions> scheduledTransactions = new List<ScheduledTransactions>();
+
+    
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            TransactionData data = new TransactionData(clientFactory);
+            var accountIDString_p = await sessionStorage.GetItemAsync<string>("accountID");
+            var protector = dataProtection.CreateProtector("TheProtector");
+            var accountIDString = protector.Unprotect(accountIDString_p);
+            accountID = int.Parse(accountIDString);
+
+            scheduledTransactions = await data.GetScheduledTransactionsForAccount(accountID);
+
+
+        } catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+}

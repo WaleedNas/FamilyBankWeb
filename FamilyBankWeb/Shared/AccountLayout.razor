@@ -34,18 +34,20 @@
         <nav class="accountHeader__nav">
             <ul class="accountHeader__list">
                 <li class="accountHeader__item dropdown">
-                    <a href="/">Family</a>
+                    <a href="/family">Family</a>
+                    <AuthorizeView Roles="Main">
                     <ul>
                         <li class="dropdown__li">
                             <a href="/addMember">Add Family Member</a>
                         </li>
                         <li class="dropdown__li">
-                            <a href="/account">Account</a>
-                        </li>
-                        <li class="dropdown__li">
-                            <a href="#"> Account Statistics</a>
+                            <a href="statistics"> Account Statistics</a>
                         </li>
                     </ul>
+                    </AuthorizeView>
+                </li>
+                <li class="accountHeader__item">
+                    <a href="/account">Account</a>
                 </li>
                 <li class="accountHeader__item">
                     <a href="/">Home</a>

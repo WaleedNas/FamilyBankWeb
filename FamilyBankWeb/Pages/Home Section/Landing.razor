@@ -6,6 +6,57 @@
 @inject IDataProtectionProvider dataProtection
 @inject CustomAuthStateProvider authStateProvider
 
+<style>
+    .card {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 300px;
+        height: 300px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-title {
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 10px;
+        margin-top: 3rem;
+    }
+
+    .card__price-only {
+        margin: 0;
+        font-size: 2rem;
+        color: #000;
+    }
+
+    .card__price-value {
+        font-size: 3rem;
+        font-weight: 100;
+    }
+
+    .card__details {
+        text-align: center;
+    }
+
+        .card__details p {
+            margin: 0;
+            font-size: 14px;
+            color: #999;
+        }
+
+        .card__details h3 {
+            font-size: 18px;
+            font-weight: normal;
+            margin-top: 5px;
+            margin-bottom: 20px;
+        }
+
+
+</style>
 
 <title>FamBank | Manage Your Family's Finances</title>
 <main>
@@ -68,40 +119,39 @@
             <div class="u-center-text u-margin-bottom-big">
                 <h2 class="heading-secondary">Your Accounts</h2>
             </div>
-            @{
-                    var matchedAccounts = from account in accounts
+                @{
+                    var matchedAccounts = (from account in accounts
                                           join user in creatorUsers on account.creatorID equals user.userID
                                           join accountUser in accountUsers on account.accountID equals accountUser.accountID
-                                          select new { Account = account, Creator = user, User = accountUser };
-
-            }
+                                          select new { Account = account, Creator = user, User = accountUser }).Distinct();
+                }
+            <div class="row">
             @foreach(var match in matchedAccounts){
 
-                  //START
-                    <div class="row">
-
-                        <div class="col-1-of-3">
+                        <div class="col-1-of-3" style="margin-bottom: 3rem">
                             <div class="card">
                                 <div class="card__side card__side--front">
+
                                     @if (match.Account.creatorID == user.userID)
                                     {
-                                        <h3 class="card-title">Your Account</h3>
+                                        <h3 class="card-title">Your</h3>
                                     }
                                     else
                                     {
-                                        <h3 class="card-title">@match.Creator.firstName @match.Creator.lastName's Account</h3>
+                                        <h3 class="card-title">@match.Creator.firstName @match.Creator.lastName's</h3>
                                     }
+                                    <h3 class="card-title" style="margin-top:-1rem">Account</h3>
 
                                 <div class="card__details">
 
-                                    <p> Registered as: </p>
+                                    <h3> Registered as: </h3>
                                     @if(match.User.isMain)
                                     {
-                                        <h3>Main User</h3>
+                                        <h2 class="card-title">Main User</h2>
                                     }
                                     else
                                     {
-                                        <h3>Sub User</h3>
+                                        <h2 class="card-title">Sub User</h2>
                                     }
                                     </div>
 
@@ -110,17 +160,16 @@
                                     <div class="card__cta">
                                         <div class="card__price-box">
                                             <p class="card__price-only">Balance Available</p>
-                                            <p class="card__price-value">$@match.User.balanceAvailable</p>
+                                            <p class="card__price-value">AED @match.User.balanceAvailable</p>
                                         </div>
-                                        <button @onclick="(e) => HandleEnter(match.User.accountID, match.User.isMain)" class="btn btn--white">Enter</button>
+                                        <button @onclick="(e) => HandleEnter(match.User.accountID, match.User.isMain)" style ="margin-top:-8rem"class="btn btn--white">Enter</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                    </div>
-                    //END
+                     
                 }
+                    </div>
           </section>
         </Authorized>
         <NotAuthorized>
