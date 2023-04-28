@@ -1,0 +1,184 @@
+﻿@page "/family"
+@layout AccountLayout
+@inject ISessionStorageService sessionStorage
+@inject IHttpClientFactory clientFactory
+@inject NavigationManager NavigationManager
+@inject IDataProtectionProvider dataProtection
+@attribute [Authorize]
+
+<style>
+    .item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 1.8rem;
+        padding: 1rem;
+        margin: 0.5rem;
+        border: 1px solid #ccc;
+    }
+
+    .actions {
+        display: flex;
+        align-items: center;
+    }
+
+    .name {
+        font-size: 1.8rem;
+        margin-right: 80rem;
+    }
+
+    .delete {
+        margin-right: 10px;
+        background-color: #f44336;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 6px 12px;
+        cursor: pointer;
+    }
+
+    .update {
+        background-color: #4CAF50;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 6px 12px;
+        cursor: pointer;
+    }
+
+    .delete:hover {
+        background-color: #f44336cc;
+    }
+
+    .update:hover {
+        background-color: #4CAF50cc;
+    }
+
+    .user-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .user-header {
+        background-color: #eee;
+        cursor: pointer;
+        padding: 10px;
+    }
+
+    .user-details {
+        display: none;
+        padding: 10px;
+    }
+
+        .user-details.show {
+            display: block;
+        }
+</style>
+
+<section class="paybills">
+    <h2 class="heading-secondary"
+        style="
+              font-size: 3rem;
+              margin-top: -25rem;
+              margin-bottom: 3rem;
+              margin-left: 0;
+              margin-right: 0;
+            ">
+        Family Members
+    </h2>
+
+        <div class="home__transactions">
+        <ul class="user-list">
+            @foreach (var user in users)
+            {
+                if (user.userID == mainUser.userID)
+                {
+                    <div></div>
+                }
+                else
+                {
+                    <li>
+
+                        <div @onclick="@(() => ToggleDetails(user.userID))">
+                            @user.username
+                        </div>
+                        <div class="user-details @DetailsClass(user.userID)">
+                            <p>@user.dateOfBirth</p>
+                            <p>@user.mobileNumber</p>
+                        </div>
+
+                    </li>
+                }
+                
+            }
+        </ul>
+        </div>
+
+
+</section>
+
+@code {
+    AccountUserModel accountUserModel = new AccountUserModel();
+    
+    int accountID { get; set; }
+    string loadingMessage { get; set; }
+    
+    UserModel mainUser = new UserModel();
+    //list of users
+    List<UserModel> users = new List<UserModel>();
+
+    private HashSet<int> openDetails = new HashSet<int>();
+
+    [CascadingParameter]
+    Task<AuthenticationState> authenticationState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            UserData data = new UserData(clientFactory, sessionStorage);
+            var accountIDString_p = await sessionStorage.GetItemAsync<string>("accountID");
+            var protector = dataProtection.CreateProtector("TheProtector");
+            var accountIDString = protector.Unprotect(accountIDString_p);
+            accountID = int.Parse(accountIDString);
+
+
+            if (authenticationState is not null)
+            {
+                var authState = await authenticationState;
+                if (authState.User.Identity.IsAuthenticated)
+                {
+
+                    string claimValue = authState.User.Claims.ElementAtOrDefault(1)?.ToString();
+                    mainUser = await data.GetUserFromContext(claimValue);
+
+                    users = await data.GetUsersFromAccount(accountID);
+                }
+            }
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private void ToggleDetails(int userId)
+    {
+        if (openDetails.Contains(userId))
+        {
+            openDetails.Remove(userId);
+        }
+        else
+        {
+            openDetails.Add(userId);
+        }
+    }
+
+    private string DetailsClass(int userId)
+    {
+        return openDetails.Contains(userId) ? "show" : "";
+    }
+
+}

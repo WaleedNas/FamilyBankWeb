@@ -1,5 +1,10 @@
 ﻿@page "/paybills"
 @layout AccountLayout
+@inject ISessionStorageService sessionStorage
+@inject IHttpClientFactory clientFactory
+@inject NavigationManager NavigationManager
+@inject IDataProtectionProvider dataProtection
+@attribute [Authorize(Roles ="Main")]
 
 <main>
 <section class="section-tours"
@@ -24,35 +29,43 @@
                     <div class="card__side card__side--back card__side--back-1">
                         <div class="card__cta">
                             <div class="card__price-box">
-                                <div class="paybillsdetailsdiv"
-                                     style="margin-bottom: 2rem">
-                                    <input class="paybillsdetailsdivcheckbox"
-                                           type="checkbox"
-                                           id="automatic-payment"
-                                           name="automatic-payment" />
-                                    <label for="automatic-payment"
-                                           class="paybillsdetailsdivlabel">Automatic Monthly Payment</label>
-                                </div>
-                                <!-- <p class="card__price-only">
-                                  monthly automatic payment
-                                </p>
-                                <p class="card__price-value">disabled</p> -->
-                                <div class="form__group"
-                                     style="
+                                @if (!existsE)
+                                {
+                                    <div class="paybillsdetailsdiv"
+                                         style="margin-bottom: 2rem">
+                                        <input type="checkbox"
+                                               class="paybillsdetailsdivcheckbox"
+                                           @bind="autoE"
+                                               id="automatic-payment"
+                                               name="automatic-payment" />
+                                        <label for="automatic-payment"
+                                               class="paybillsdetailsdivlabel">Automatic Monthly Payment</label>
+                                    </div>
+                                    <!-- <p class="card__price-only">
+                                      monthly automatic payment
+                                    </p>
+                                    <p class="card__price-value">disabled</p> -->
+                                    <div class="form__group"
+                                         style="
                             margin-bottom: -5rem;
                             display: flex;
                             justify-content: center;
                             align-items: center;
                             flex-direction: column;
                           ">
-                                    <input type="text"
-                                           class="form__input"
-                                           placeholder="Amount"
-                                           id="amount" />
-                                    <label for="amount" class="form__label">Amount</label>
-                                </div>
+                                        <input type="number"
+                                               class="form__input"
+                                               placeholder="Amount"
+                                               id="amount1"
+                                           @bind="amount1"
+                                               style="color:black" />
+                                        <label for="amount1" class="form__label">Amount</label>
+                                    </div>
+                                }
+
                             </div>
-                            <a href="paybillsdetails.html" class="btn btn--white">Pay Bill</a>
+                            <h3>@alert1</h3>
+                            <button @onclick="HandleE" disabled="@existsE" class="btn btn--white">Pay Bill</button>
                         </div>
                     </div>
                 </div>
@@ -70,35 +83,44 @@
                     <div class="card__side card__side--back card__side--back-2">
                         <div class="card__cta">
                             <div class="card__price-box">
-                                <div class="paybillsdetailsdiv"
-                                     style="margin-bottom: 2rem">
-                                    <input class="paybillsdetailsdivcheckbox"
-                                           type="checkbox"
-                                           id="automatic-payment"
-                                           name="automatic-payment" />
-                                    <label for="automatic-payment"
-                                           class="paybillsdetailsdivlabel">Automatic Monthly Payment</label>
-                                </div>
-                                <!-- <p class="card__price-only">
-                                  monthly automatic payment
-                                </p>
-                                <p class="card__price-value">disabled</p> -->
-                                <div class="form__group"
-                                     style="
+                                @if (!existsW)
+                                {
+                                    <div class="paybillsdetailsdiv"
+                                         style="margin-bottom: 2rem">
+                                        <input type="checkbox"
+                                               class="paybillsdetailsdivcheckbox"
+                                           @bind="autoW"
+                                               id="automatic-payment2"
+                                               name="automatic-payment2" />
+                                        <label for="automatic-payment2"
+                                               class="paybillsdetailsdivlabel">Automatic Monthly Payment</label>
+                                    </div>
+                                    <!-- <p class="card__price-only">
+                                      monthly automatic payment
+                                    </p>
+                                    <p class="card__price-value">disabled</p> -->
+                                    <div class="form__group"
+                                         style="
                             margin-bottom: -5rem;
                             display: flex;
                             justify-content: center;
                             align-items: center;
                             flex-direction: column;
                           ">
-                                    <input type="text"
-                                           class="form__input"
-                                           placeholder="Amount"
-                                           id="amount" />
-                                    <label for="amount" class="form__label">Amount</label>
-                                </div>
+                                        <input type="number"
+                                               class="form__input"
+                                               placeholder="Amount"
+                                           @bind="amount2"
+                                               style="color:black"
+                                               id="amount2" />
+
+                                        <label for="amount2" class="form__label">Amount</label>
+                                    </div>
+                                }
+                                
                             </div>
-                            <a href="paybillsdetails.html" class="btn btn--white">Pay Bill</a>
+                            <h3>@alert2</h3>
+                            <button @onclick="HandleW" disabled="@existsW" class="btn btn--white">Pay Bill</button>
                         </div>
                     </div>
                 </div>
@@ -116,43 +138,54 @@
                     <div class="card__side card__side--back card__side--back-3">
                         <div class="card__cta">
                             <div class="card__price-box">
-                                <div class="paybillsdetailsdiv"
-                                     style="margin-bottom: 2rem">
-                                    <input class="paybillsdetailsdivcheckbox"
-                                           type="checkbox"
-                                           id="automatic-payment"
-                                           name="automatic-payment" />
-                                    <label for="automatic-payment"
-                                           class="paybillsdetailsdivlabel">Automatic Monthly Payment</label>
-                                </div>
-                                <!-- <p class="card__price-only">
-                                  monthly automatic payment
-                                </p>
-                                <p class="card__price-value">disabled</p> -->
-                                <div class="form__group"
-                                     style="
+                                @if (!existsI)
+                                {
+                                    <div class="paybillsdetailsdiv"
+                                         style="margin-bottom: 2rem">
+                                        <input type="checkbox"
+                                               class="paybillsdetailsdivcheckbox"
+                                           @bind="autoI"
+                                               id="automatic-payment3"
+                                               name="automatic-payment3" />
+                                        <label for="automatic-payment3"
+                                               class="paybillsdetailsdivlabel">Automatic Monthly Payment</label>
+                                    </div>
+                                    <!-- <p class="card__price-only">
+                                      monthly automatic payment
+                                    </p>
+                                    <p class="card__price-value">disabled</p> -->
+                                    <div class="form__group"
+                                         style="
                             margin-bottom: -5rem;
                             display: flex;
                             justify-content: center;
                             align-items: center;
                             flex-direction: column;
                           ">
-                                    <input type="text"
-                                           class="form__input"
-                                           placeholder="Amount"
-                                           id="amount" />
-                                    <label for="amount" class="form__label">Amount</label>
-                                </div>
+                                        <input type="number"
+                                               class="form__input"
+                                               placeholder="Amount"
+                                           @bind="amount3"
+                                               style="color: black"
+                                               id="amount3" />
+                                        <label for="amount3" class="form__label">Amount</label>
+                                    </div>
+                                }
+                                
                             </div>
-                            <a href="signup.html" class="btn btn--white">Pay Bill</a>
+                            <h3>@alert3</h3>
+                            <button @onclick="HandleI" disabled="@existsI" class="btn btn--white">Pay Bill</button>
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
+    
 
     <div class="u-center-text u-margin-top-huge">
-        <a href="/paybillsdetails" class="btn btn--green">Other Bills</a>
+        <a href="/paybillsdetails" style="margin-right:2rem"class="btn btn--green">Other Bills</a>
+        <a href="/viewSchedbills" class="btn btn--green">View Scheduled Bills</a>
     </div>
 </section>
 
@@ -160,4 +193,241 @@
 
 @code {
 
+
+    int accountID { get; set; }
+    string loadingMessage { get; set; }
+    private UserModel user = new UserModel();
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            UserData data = new UserData(clientFactory, sessionStorage);
+            TransactionData transactionData = new TransactionData(clientFactory);
+            var accountIDString_p = await sessionStorage.GetItemAsync<string>("accountID");
+            var protector = dataProtection.CreateProtector("TheProtector");
+            var accountIDString = protector.Unprotect(accountIDString_p);
+            accountID = int.Parse(accountIDString);
+
+            if (authenticationState is not null)
+            {
+                var authState = await authenticationState;
+                if (authState.User.Identity.IsAuthenticated)
+                {
+
+                    string claimValue = authState.User.Claims.ElementAtOrDefault(1)?.ToString();
+                    user = await data.GetUserFromContext(claimValue);
+
+                    //initialize transaction
+                    transaction.accountID = accountID;
+                    transaction.userID = user.userID;
+                    transaction.debit = true;
+
+                    //initialize scheduled transaction
+                    scheduledTransaction.accountID = accountID;
+                    scheduledTransaction.userID = user.userID;
+                    scheduledTransaction.debit = true;
+
+                    //Check if Scheduled Transactions exist
+                    scheduledTransactionList = await transactionData.GetScheduledTransactionsForAccount(accountID);
+                    foundE = scheduledTransactionList.FirstOrDefault(t => t.title == "Electricity Bill")?.title;
+                    foundW = scheduledTransactionList.FirstOrDefault(t => t.title == "Water Bill")?.title;
+                    foundI = scheduledTransactionList.FirstOrDefault(t => t.title == "Internet Bill")?.title;
+
+
+                    if (foundE != null)
+                    {
+                        existsE = true;
+                        alert1 = "You have a scheduled transaction for this bill";
+                    }
+                    if (foundW != null)
+                    {
+                        existsW = true;
+                        alert2 = "You have a scheduled transaction for this bill";
+                    }
+                    if (foundI != null)
+                    {
+                        existsI = true;
+                        alert3 = "You have a scheduled transaction for this bill";
+                    }
+                }
+            }
+
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private TransactionModel transaction = new TransactionModel();
+    private ScheduledTransactions scheduledTransaction = new ScheduledTransactions();
+    private List<ScheduledTransactions> scheduledTransactionList = new List<ScheduledTransactions>();
+    bool autoE { get; set; }
+    bool autoW { get; set; }
+    bool autoI { get; set; }
+
+    //check if scheduled transaction exists
+    bool existsE {get;set;}
+    bool existsW {get;set;}
+    bool existsI {get;set;}
+
+    //string to check if sched exists
+    string foundE { get; set; }
+    string foundW { get; set; }
+    string foundI { get; set; }
+
+    double amount1 { get; set; }
+    double amount2 { get; set; }
+    double amount3 { get; set; }
+
+    string alert1 { get; set; }
+    string alert2 { get; set; }
+    string alert3 { get; set; }
+
+    private async Task HandleE()
+    {
+        try
+        {
+            TransactionData data = new TransactionData(clientFactory);
+            string title = "Electricity Bill";
+            alert1 = "Waiting for response";
+            if (autoE)
+            {
+                //Schedule
+                scheduledTransaction.amount = amount1;
+                scheduledTransaction.title = title;
+                scheduledTransaction.transactionDate = DateTime.Now;
+                scheduledTransaction.transactionFrequency = 4;
+
+                var response = await data.CreateScheduledTransaction(scheduledTransaction);
+                if (response.IsSuccessStatusCode)
+                {
+                    alert1 = "Payment Added";
+                    existsE = true;
+                }
+                else
+                {
+                    alert1 = "Error with payment";
+                }
+            }
+            else
+            {
+                //Pay Now
+                transaction.amount = amount1;
+                transaction.title = title;
+                transaction.transactionDate = DateTime.Now;
+                var response = await data.CreateTransaction(transaction);
+                if (response.IsSuccessStatusCode)
+                {
+                    alert1 = "Payment Successful";
+                }
+                else
+                {
+                    alert1 = "Error with payment";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    private async Task HandleW()
+    {
+        try
+        {
+            TransactionData data = new TransactionData(clientFactory);
+            string title = "Water Bill";
+            if (autoW)
+            {
+                //Schedule
+                scheduledTransaction.amount = amount2;
+                scheduledTransaction.title = title;
+                scheduledTransaction.transactionDate = DateTime.Now;
+                //not sure
+                scheduledTransaction.transactionFrequency = 4;
+                var response = await data.CreateScheduledTransaction(scheduledTransaction);
+                if (response.IsSuccessStatusCode)
+                {
+                    alert2 = "Payment Added";
+                    existsW = true;
+                }
+                else
+                {
+                    alert2 = "Error with payment";
+                }
+            }
+            else
+            {
+                //Pay Now
+                transaction.amount = amount2;
+                transaction.title = title;
+                transaction.transactionDate = DateTime.Now;
+                var response = await data.CreateTransaction(transaction);
+                if (response.IsSuccessStatusCode)
+                {
+                    alert2 = "Payment Successful";
+
+                }
+                else
+                {
+                    alert2 = "Error with payment";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    private async Task HandleI()
+    {
+        try
+        {
+            TransactionData data = new TransactionData(clientFactory);
+            string title = "Internet Bill";
+            if (autoI)
+            {
+                //Schedule
+                scheduledTransaction.amount = amount3;
+                scheduledTransaction.title = title;
+                scheduledTransaction.transactionDate = DateTime.Now;
+                //not sure
+                scheduledTransaction.transactionFrequency = 4;
+                var response = await data.CreateScheduledTransaction(scheduledTransaction);
+                if (response.IsSuccessStatusCode)
+                {
+                    alert3 = "Payment Added";
+                    existsI = true;
+                }
+                else
+                {
+                    alert3 = "Error with payment";
+                }
+            }
+            else
+            {
+                //Pay Now
+                transaction.amount = amount3;
+                transaction.title = title;
+                transaction.transactionDate = DateTime.Now;
+                var response = await data.CreateTransaction(transaction);
+                if (response.IsSuccessStatusCode)
+                {
+                    alert3 = "Payment Successful";
+                }
+                else
+                {
+                    alert3 = "Error with payment";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
 }
