@@ -133,6 +133,7 @@
     private CardModel card = new CardModel();
     private List<TransactionModel> transactions = new List<TransactionModel>();
     private List<TransactionModel> subTransactions = new List<TransactionModel>();
+    private List<ScheduledTransactions> scheduledTransactions = new List<ScheduledTransactions>();
     int accountID { get; set; }
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationState { get; set; }
@@ -172,7 +173,7 @@
                     {
                         transactions = await transactionData.GetTransactionsForAccount(accountID);
                         subTransactions = await transactionData.GetUserTransactionsForAccount(user.userID, accountID);
-
+                        scheduledTransactions = await transactionData.GetScheduledTransactionsForAccount(accountID);
                     }
                     catch(Exception e)
                     {
@@ -181,6 +182,7 @@
 
                     transactions = transactions.OrderByDescending(t => t.transactionDate).ToList();
                     subTransactions = subTransactions.OrderByDescending(t => t.transactionDate).ToList();
+                    scheduledTransactions = scheduledTransactions.OrderByDescending(t => t.transactionDate).ToList();
                     accountModel = await accountData.GetAccount(accountID);
                     Balance = await accountData.GetBalance(accountID, user.userID);
 
@@ -196,10 +198,13 @@
         }
 
         await Task.Delay(1000);
+        await JS.InvokeVoidAsync("onLoad", DotNetObjectReference.Create(this));
+    }
 
+    [JSInvokable]
+    public async Task OnOpenChatbox()
+    {
         GptCompletion.Initialize(true);
-        await JS.InvokeVoidAsync("onLoad");
-
     }
 
     private async Task OnSubmit()
@@ -211,6 +216,32 @@
     public async Task SendToChatbot(string input)
     {
         var response = await GptCompletion.AskChatbot(input);
+        if (response == "*")
+        {
+            var expenses = transactions.Where(t => t.debit == true).Sum(t => t.amount);
+            DateOnly salaryDate;
+            var salary = transactions.FirstOrDefault(t => t.title == "Salary");  /*scheduledTransactions.FirstOrDefault(t => t.title == "Salary")*/;
+            var schedSalary = scheduledTransactions.FirstOrDefault(t => t.title == "Salary"); ;
+            double amount = 0;
+
+            if(salary != null)
+            {
+                salaryDate = DateOnly.FromDateTime(salary.transactionDate);
+                salaryDate.AddMonths(1);
+                amount = salary.amount;
+            }
+            else if(schedSalary != null)
+            {
+                salaryDate = DateOnly.FromDateTime(schedSalary.transactionDate);
+                amount = schedSalary.amount;
+            }
+
+            response = "You currently have " + Balance + " AED in your balance. Considering that your monthly expenses " +
+                             "are about " + expenses + " AED/month, it is safe to spend " + (Balance - expenses) + " AED. " +
+                             (salary != null || schedSalary != null ? "The next salary release day is on " + salaryDate + ", the safe amount to spend " +
+                                               "will be " + (Balance - expenses + amount) + " AED." : "");
+        }
+
         await JS.InvokeVoidAsync("chatbotReply", response);
     }
 
