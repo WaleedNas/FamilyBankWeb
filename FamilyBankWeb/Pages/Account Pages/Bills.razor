@@ -185,7 +185,7 @@
 
     <div class="u-center-text u-margin-top-huge">
         <a href="/paybillsdetails" style="margin-right:2rem"class="btn btn--green">Other Bills</a>
-        <a href="/viewSchedbills" class="btn btn--green">View Scheduled Bills</a>
+        <a href="/viewSchedbills" class="btn btn--green">View Scheduled Payments</a>
     </div>
 </section>
 
@@ -231,7 +231,14 @@
                     scheduledTransaction.debit = true;
 
                     //Check if Scheduled Transactions exist
-                    scheduledTransactionList = await transactionData.GetScheduledTransactionsForAccount(accountID);
+                    try
+                    {
+                        scheduledTransactionList = await transactionData.GetScheduledTransactionsForAccount(accountID);
+
+                    } catch(Exception e)
+                    {
+
+                    }
                     foundE = scheduledTransactionList.FirstOrDefault(t => t.title == "Electricity Bill")?.title;
                     foundW = scheduledTransactionList.FirstOrDefault(t => t.title == "Water Bill")?.title;
                     foundI = scheduledTransactionList.FirstOrDefault(t => t.title == "Internet Bill")?.title;
@@ -302,6 +309,8 @@
                 scheduledTransaction.title = title;
                 scheduledTransaction.transactionDate = DateTime.Now;
                 scheduledTransaction.transactionFrequency = 4;
+                //a year from now
+                scheduledTransaction.endDate = DateTime.Now.AddYears(1);
 
                 var response = await data.CreateScheduledTransaction(scheduledTransaction);
                 if (response.IsSuccessStatusCode)
@@ -322,13 +331,17 @@
                 transaction.title = title;
                 transaction.transactionDate = DateTime.Now;
                 var response = await data.CreateTransaction(transaction);
-                if (response.IsSuccessStatusCode)
+                if (response.IsSuccessStatusCode && response.StatusCode != (System.Net.HttpStatusCode)240)
                 {
                     alert1 = "Payment Successful";
                 }
+                else if (response.StatusCode == (System.Net.HttpStatusCode)240)
+                {
+                    alert1 = "Insufficient Funds";
+                }
                 else
                 {
-                    alert1 = "Error with payment";
+                    alert1 = "Error in Payment";
                 }
             }
         }
@@ -349,6 +362,7 @@
                 scheduledTransaction.amount = amount2;
                 scheduledTransaction.title = title;
                 scheduledTransaction.transactionDate = DateTime.Now;
+                scheduledTransaction.endDate = DateTime.Now.AddYears(1);
                 //not sure
                 scheduledTransaction.transactionFrequency = 4;
                 var response = await data.CreateScheduledTransaction(scheduledTransaction);
@@ -369,14 +383,17 @@
                 transaction.title = title;
                 transaction.transactionDate = DateTime.Now;
                 var response = await data.CreateTransaction(transaction);
-                if (response.IsSuccessStatusCode)
+                if (response.IsSuccessStatusCode && response.StatusCode != (System.Net.HttpStatusCode)240)
                 {
                     alert2 = "Payment Successful";
-
+                }
+                else if (response.StatusCode == (System.Net.HttpStatusCode)240)
+                {
+                    alert2 = "Insufficient Funds";
                 }
                 else
                 {
-                    alert2 = "Error with payment";
+                    alert2 = "Error in Payment";
                 }
             }
         }
@@ -397,6 +414,7 @@
                 scheduledTransaction.amount = amount3;
                 scheduledTransaction.title = title;
                 scheduledTransaction.transactionDate = DateTime.Now;
+                scheduledTransaction.endDate = DateTime.Now.AddYears(1);
                 //not sure
                 scheduledTransaction.transactionFrequency = 4;
                 var response = await data.CreateScheduledTransaction(scheduledTransaction);
@@ -417,13 +435,17 @@
                 transaction.title = title;
                 transaction.transactionDate = DateTime.Now;
                 var response = await data.CreateTransaction(transaction);
-                if (response.IsSuccessStatusCode)
+                if (response.IsSuccessStatusCode && response.StatusCode != (System.Net.HttpStatusCode)240)
                 {
                     alert3 = "Payment Successful";
                 }
+                else if (response.StatusCode == (System.Net.HttpStatusCode)240)
+                {
+                    alert3 = "Insufficient Funds";
+                }
                 else
                 {
-                    alert3 = "Error with payment";
+                    alert3 = "Error in Payment";
                 }
             }
         }
