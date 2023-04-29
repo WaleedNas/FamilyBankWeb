@@ -84,5 +84,10 @@ namespace FamilyBankWeb.Data
             return trans;
         }
 
+        public async Task<HttpResponseMessage> DeleteTransfer(int id)
+        {
+            var client = _httpClientFactory.CreateClient("Api");
+            return await client.DeleteAsync($"/Transfers/Stop/{id}");
+        }
     }
 }

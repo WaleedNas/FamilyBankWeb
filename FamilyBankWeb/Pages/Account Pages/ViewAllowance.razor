@@ -1,0 +1,156 @@
+﻿@page "/viewallowance"
+@layout AccountLayout
+@inject ISessionStorageService sessionStorage
+@inject IHttpClientFactory clientFactory
+@inject NavigationManager NavigationManager
+@inject IDataProtectionProvider dataProtection
+@attribute [Authorize(Roles = "Main")]
+
+<style>
+
+    .item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 1.8rem;
+        padding: 1rem;
+        margin: 0.5rem;
+        border: 1px solid #ccc;
+        width: 80%;
+    }
+
+    .actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .name {
+        font-size: 1.8rem;
+        flex-grow: 1;
+        align-self: stretch;
+    }
+
+    .delete {
+        margin-right: 10px;
+        background-color: #f44336;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 6px 12px;
+        cursor: pointer;
+    }
+
+    .update {
+        background-color: #4CAF50;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 6px 12px;
+        cursor: pointer;
+    }
+
+    .delete:hover {
+        background-color: #f44336cc;
+    }
+
+    .update:hover {
+        background-color: #4CAF50cc;
+    }
+</style>
+<section class="paybills">
+    <h2 class="heading-secondary"
+        style="
+              font-size: 3rem;
+              margin-top: -40rem;
+              margin-bottom: 3rem;
+              margin-left: 0;
+              margin-right: 0;
+                position:absolute;
+            ">
+        View Timed Transfers
+    </h2>
+
+    @{
+        var userTransfers = from user in users
+                            join transfer in transfers
+                            on user.userID equals transfer.toUserID
+                            select new { User = user, Transfer = transfer };
+    }
+
+    @foreach (var transfer in userTransfers)
+    {
+        <div class="item">
+           
+                <span class="name">@transfer.Transfer.title - @transfer.User.username AED @transfer.Transfer.amount Monthly - End Date: @(transfer.Transfer.endDate.Date.ToShortDateString())</span>
+
+            <div class="actions">
+                <button @onclick="(e) => HandleDelete(transfer.Transfer.transferID)" class="delete">Delete</button>
+            </div>
+        </div>
+
+    }
+
+
+    <div class="form__group" style="margin-top:2rem;">
+        <a href="/allowance" class="btn btn--green">&larr; Back</a>
+    </div>
+
+
+</section>
+
+@code {
+
+
+    int accountID { get; set; }
+    string loadingMessage { get; set; }
+    private UserModel user = new UserModel();
+    private List<TransferModel> transfers = new List<TransferModel>();
+    private List<UserModel> users = new List<UserModel>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            TransactionData data = new TransactionData(clientFactory);
+            UserData userData = new UserData(clientFactory, sessionStorage);
+            var accountIDString_p = await sessionStorage.GetItemAsync<string>("accountID");
+            var protector = dataProtection.CreateProtector("TheProtector");
+            var accountIDString = protector.Unprotect(accountIDString_p);
+            accountID = int.Parse(accountIDString);
+
+            try
+            {
+                transfers = await data.GetTransfers(accountID);
+                foreach (var transfer in transfers)
+                {
+                    var user = await userData.GetUser(transfer.toUserID);
+                    users.Add(user);
+
+                }
+            }
+            catch (Exception e)
+            {
+
+            }
+
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+
+
+    public async Task HandleDelete(int transID)
+    {
+
+        TransactionData data = new TransactionData(clientFactory);
+        await data.DeleteTransfer(transID);
+        NavigationManager.NavigateTo("/viewallowance", true);
+
+    }
+}
