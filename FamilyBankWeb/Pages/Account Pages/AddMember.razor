@@ -27,7 +27,7 @@
                             <InputText
                                     type="password"
                                     class="form__input"
-                                    placeholder="Password"
+                                    placeholder="User's Password"
                                     id="password"
                                     @bind-Value=addMemberModel.password
                                     required />
@@ -36,19 +36,20 @@
 
                     <div class="form__group">
                 <h3> Privilege Status</h3>
-                            <InputSelect
+                            <select
                                     class="form__input"
                                     placeholder="Username"
                                     id="username"
-                                    @bind-Value=addMemberModel.priv
+                                    @bind=priv
+                                   
                                     required>
                                     <option value="Main"> Main</option>
                                     <option value="Sub"> Sub</option>
-                                    </InputSelect>
+                                    </select>
                         </div>
 
                         <div class="form__group">
-                            <h3> Add Initial Balance</h3>
+                            <h3> Add Initial Balance (If Sub Only)</h3>
                         <InputNumber placeholder="0.00"
                                  id="balance"
                                  @bind-Value=addMemberModel.balance
@@ -74,6 +75,7 @@
     AccountUserModel accountUserModel = new AccountUserModel();
     UserLoginModel userLoginModel = new UserLoginModel();
     AddMemberModel addMemberModel = new AddMemberModel();
+    AccountModel accountModel = new AccountModel();
     int accountID { get; set; }
     string loadingMessage { get; set; }
 
@@ -81,10 +83,12 @@
     {
         try
         {
+            AccountData accountData = new AccountData(clientFactory);
             var accountIDString_p = await sessionStorage.GetItemAsync<string>("accountID");
             var protector = dataProtection.CreateProtector("TheProtector");
             var accountIDString = protector.Unprotect(accountIDString_p);
             accountID = int.Parse(accountIDString);
+            accountModel = await accountData.GetAccount(accountID);
 
         } catch (Exception ex)
         {
@@ -92,24 +96,33 @@
         }
     }
 
+    public enum Privilege
+    {
+        Main,
+        Sub
+    }
+
+    Privilege priv = new Privilege();
 
     private async Task HandleSubmit()
     {
         try
         {
+            addMemberModel.priv = priv.ToString();
             loadingMessage = "Waiting for response";
             UserData userData = new UserData(clientFactory, sessionStorage);
             AccountData accountData = new AccountData(clientFactory);
             userLoginModel.username = addMemberModel.username;
             userLoginModel.password = addMemberModel.password;
-            accountUserModel.balanceAvailable = addMemberModel.balance;
             if (addMemberModel.priv == "Main")
             {
                 accountUserModel.isMain = true;
+                accountUserModel.balanceAvailable = accountModel.balance;
             }
             else
             {
                 accountUserModel.isMain = false;
+            accountUserModel.balanceAvailable = addMemberModel.balance;
             }
 
             int userID = await userData.GetIdFromLogin(userLoginModel);
@@ -124,7 +137,7 @@
                 }
                 else
                 {
-                    loadingMessage = "Incorrect Username or password";
+                    loadingMessage = "User is already added";
                 }
             }
             else

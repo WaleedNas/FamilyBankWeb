@@ -58,25 +58,37 @@
         list-style: none;
         margin: 0;
         padding: 0;
+        width:40rem;
     }
 
     .user-header {
-        background-color: #eee;
+        margin-top:-10px;
+        margin-bottom: 0;
         cursor: pointer;
         padding: 10px;
+
     }
 
+
     .user-details {
+        
         display: none;
         padding: 10px;
+        height: 0;
+        margin-bottom:0;
     }
 
         .user-details.show {
             display: block;
         }
+
+    .user-container {
+        height: auto;
+        margin-bottom: 1rem;
+    }
 </style>
 
-<section class="paybills">
+<section class="paybills" style="position:relative">
     <h2 class="heading-secondary"
         style="
               font-size: 3rem;
@@ -88,6 +100,8 @@
         Family Members
     </h2>
 
+
+
         <div class="home__transactions">
         <ul class="user-list">
             @foreach (var user in users)
@@ -98,24 +112,22 @@
                 }
                 else
                 {
-                    <li>
-
-                        <div @onclick="@(() => ToggleDetails(user.userID))">
+                    <li style="margin-bottom: 1rem">
+                        <div class="user-container">
+                        <div class="user-header @HeaderClass(user.userID)" @onclick="@(() => ToggleDetails(user.userID))">
                             @user.username
                         </div>
                         <div class="user-details @DetailsClass(user.userID)">
-                            <p>@user.dateOfBirth</p>
-                            <p>@user.mobileNumber</p>
+                            <p>Date Of Birth: @user.dateOfBirth</p>
+                            <p>Mobile Number: @user.mobileNumber</p>
                         </div>
-
+                        </div>
                     </li>
                 }
                 
             }
         </ul>
         </div>
-
-
 </section>
 
 @code {
@@ -174,11 +186,17 @@
         {
             openDetails.Add(userId);
         }
+        StateHasChanged();
     }
 
     private string DetailsClass(int userId)
     {
         return openDetails.Contains(userId) ? "show" : "";
+    }
+
+    private string HeaderClass(int userId)
+    {
+        return openDetails.Contains(userId) ? "active" : "";
     }
 
 }

@@ -63,12 +63,40 @@
             <h3>Recent Transactions:</h3>
 
             <ul>
-                @foreach (var transaction in transactions)
+                <AuthorizeView Roles="Main">
+                @foreach (var transaction in transactions.Take(3))
 				{
-					<li>@transaction.transactionDate - $@transaction.amount</li>
+					<li>
+                        @transaction.transactionDate - AED @transaction.amount - @transaction.title @if (transaction.debit)
+                        {
+                            <span style="color:red"> -</span>
+                        }
+                        else
+                        {
+                            <span style="color:green"> +</span>
+                            
+                        }
+                    </li>
 				}
+                </AuthorizeView>
+                <AuthorizeView Roles="Sub">
+                    @foreach (var transaction in subTransactions.Take(3))
+                    {
+                        <li>
+                            @transaction.transactionDate - AED @transaction.amount - @transaction.title @if (transaction.debit)
+                            {
+                                <span style="color:red"> -</span>
+                            }
+                            else
+                            {
+                                <span style="color:green"> +</span>
+
+                            }
+                        </li>
+                    }
+                </AuthorizeView>
             </ul>
-            <a class="home__view-transactions btn"> View All Transactions </a>
+            <a href="/statement" class="home__view-transactions btn"> Transactions Statement </a>
         </div>
     </section>
 </main>
@@ -104,6 +132,7 @@
     private AccountUserModel accountUser = new AccountUserModel();
     private CardModel card = new CardModel();
     private List<TransactionModel> transactions = new List<TransactionModel>();
+    private List<TransactionModel> subTransactions = new List<TransactionModel>();
     int accountID { get; set; }
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationState { get; set; }
@@ -117,6 +146,7 @@
             UserData data = new UserData(clientFactory, sessionStorage);
             AccountData accountData = new AccountData(clientFactory);
             CardData cardData = new CardData(clientFactory);
+            TransactionData transactionData = new TransactionData(clientFactory);
             var accountIDString_p = await sessionStorage.GetItemAsync<string>("accountID");
             var protector = dataProtection.CreateProtector("TheProtector");
             var accountIDString = protector.Unprotect(accountIDString_p);
@@ -138,6 +168,19 @@
                     cardNum = cardNum.Insert(9, " ");
                     cardNum = cardNum.Insert(14, " ");
 
+                    try
+                    {
+                        transactions = await transactionData.GetTransactionsForAccount(accountID);
+                        subTransactions = await transactionData.GetUserTransactionsForAccount(user.userID, accountID);
+
+                    }
+                    catch(Exception e)
+                    {
+                        
+                    }
+
+                    transactions = transactions.OrderByDescending(t => t.transactionDate).ToList();
+                    subTransactions = subTransactions.OrderByDescending(t => t.transactionDate).ToList();
                     accountModel = await accountData.GetAccount(accountID);
                     Balance = await accountData.GetBalance(accountID, user.userID);
 

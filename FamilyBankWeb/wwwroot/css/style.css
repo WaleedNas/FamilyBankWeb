@@ -776,7 +776,7 @@ body {
       height: 4rem;
       line-height: 4rem;
       font-weight: 700;
-      margin-bottom: 1rem; }
+       }
       .home__transactions li:hover {
         cursor: default;
         transform: translateY(-3px);
