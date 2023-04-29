@@ -1,5 +1,144 @@
-﻿<h3>Debit</h3>
+﻿@page "/debit"
+@layout AccountLayout
+@inject ISessionStorageService sessionStorage
+@inject IHttpClientFactory clientFactory
+@inject NavigationManager NavigationManager
+@inject IDataProtectionProvider dataProtection
+@attribute [Authorize(Roles ="Main")]
+
+
+<section class="paybills">
+    <h2 class="heading-secondary"
+        style="
+              font-size: 3rem;
+              margin-top: 2rem;
+              margin-bottom: 2rem;
+              margin-left: 0;
+              margin-right: 0;
+            ">
+        Add Monthly Debit
+    </h2>
+    <!-- fix text fields width & position -->
+    <div class="paybills__form">
+        <form action="/pay" method="POST">
+            <div class="form__group paybillsdetailsform">
+                <input type="text"
+                       class="form__input"
+                       placeholder="Title"
+                       @bind="title"
+                       id="Type" />
+                <label for="Type" class="form__label">Title</label>
+            </div>
+            <div class="form__group paybillsdetailsform">
+                <input type="number"
+                       class="form__input"
+                       placeholder="Amount"
+                       @bind="amount"
+                       id="amount" />
+                <label for="amount" class="form__label">Amount</label>
+            </div>
+            <div class="form__group paybillsdetailsform">
+                <input type="date"
+                       class="form__input"
+                       placeholder="End Date"
+                       @bind="endDate"
+                       id="endDate" />
+                <label for="endDate" class="form__label">End Date</label>
+            </div>
+            <!-- style this class="form__label"-->
+
+
+            <!-- put this in center -->
+            <div class="form__group">
+                <h3>@alert</h3>
+                <a href="/paybills" class="btn btn--green">&larr; Back</a>
+                <a @onclick="HandleSubmit" class="btn btn--green">Submit &rarr;</a>
+                <a href="/viewSchedbills" class="btn btn--green"> View Scheduled Payments</a>
+            </div>
+            <!-- tell waleed to add option that user must turn off automatic payment if they want to pay same bill again (pop up) -->
+        </form>
+    </div>
+</section>
 
 @code {
+    int accountID { get; set; }
+    string loadingMessage { get; set; }
+    private UserModel user = new UserModel();
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            UserData data = new UserData(clientFactory, sessionStorage);
+            var accountIDString_p = await sessionStorage.GetItemAsync<string>("accountID");
+            var protector = dataProtection.CreateProtector("TheProtector");
+            var accountIDString = protector.Unprotect(accountIDString_p);
+            accountID = int.Parse(accountIDString);
 
+
+            if (authenticationState is not null)
+            {
+                var authState = await authenticationState;
+                if (authState.User.Identity.IsAuthenticated)
+                {
+
+                    string claimValue = authState.User.Claims.ElementAtOrDefault(1)?.ToString();
+                    user = await data.GetUserFromContext(claimValue);
+
+
+                    //scheduled transaction
+                    scheduledTransaction.accountID = accountID;
+                    scheduledTransaction.userID = user.userID;
+                    scheduledTransaction.debit = true;
+                }
+            }
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private DateOnly endDate { get; set; }
+
+    private ScheduledTransactions scheduledTransaction = new ScheduledTransactions();
+    private double amount { get; set; }
+    private string alert { get; set; }
+    string title { get; set; }
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            TransactionData data = new TransactionData(clientFactory);
+
+            
+                //Schedule
+                scheduledTransaction.amount = amount;
+                scheduledTransaction.title = title;
+                scheduledTransaction.description = "Debit";
+                scheduledTransaction.transactionDate = DateTime.Now;
+                scheduledTransaction.endDate = DateTime.Parse(endDate.ToString());
+                //not sure
+                scheduledTransaction.transactionFrequency = 4;
+                var response = await data.CreateScheduledTransaction(scheduledTransaction);
+                if (response.IsSuccessStatusCode)
+                {
+                    alert = "Payment Added";
+                    
+                }
+                else
+                {
+                    alert = "Error with payment";
+                }
+            
+            
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
 }
+

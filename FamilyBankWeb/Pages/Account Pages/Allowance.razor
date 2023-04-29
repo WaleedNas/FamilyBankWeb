@@ -1,5 +1,84 @@
-﻿<h3>Allowance</h3>
+﻿@page "/allowance"
+@attribute [Authorize (Roles ="Main")]
+@inject ISessionStorageService sessionStorage
+@inject IHttpClientFactory clientFactory
+@inject NavigationManager NavigationManager
+@inject IDataProtectionProvider dataProtection
+
+@{
+    var joinedList = from user in allUsers
+                     join accountUser in userList.SelectMany(x => x)
+                         on new { userID = user.userID, accountID = accountID }
+                         equals new { userID = accountUser.userID, accountID = accountUser.accountID }
+                         into accountUsers
+                     select new { User = user, AccountUser = accountUsers.FirstOrDefault() };
+}
 
 @code {
+    private UserModel user = new UserModel();
+    private List<UserModel> allUsers = new List<UserModel>();
+    private List<List<AccountUserModel>> userList = new List<List<AccountUserModel>>();
+
+
+    private bool hasOwnAccount { get; set; }
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+    int accountID { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            UserData data = new UserData(clientFactory, sessionStorage);
+            AccountData accountData = new AccountData(clientFactory);
+            var accountIDString_p = await sessionStorage.GetItemAsync<string>("accountID");
+            var protector = dataProtection.CreateProtector("TheProtector");
+            var accountIDString = protector.Unprotect(accountIDString_p);
+            accountID = int.Parse(accountIDString);
+
+            if (authenticationState is not null)
+            {
+                var authState = await authenticationState;
+                if (authState.User.Identity.IsAuthenticated)
+                {
+                    var test = await sessionStorage.GetItemAsync<string>("role");
+                    //check if test has a value
+                    string claimValue;
+                    if (test is null)
+                    {
+                        claimValue = authState.User.Claims.FirstOrDefault()?.ToString();
+
+                    }
+                    else
+                    {
+                        claimValue = authState.User.Claims.ElementAtOrDefault(1)?.ToString();
+                    }
+                    user = await data.GetUserFromContext(claimValue);
+
+                    allUsers = await data.GetUsersFromAccount(accountID);
+                    allUsers.Remove(allUsers.First(u => u.userID == user.userID));
+
+                    foreach (var _user in allUsers)
+					{
+						var accountUsers = await accountData.GetAccountUsers(_user.userID);
+						userList.Add(accountUsers);
+					}
+                    
+                    
+
+
+
+                }
+            }
+
+
+        }
+        catch (Exception ex)
+        {
+            // Handle the exception here
+            ex.Message.ToString();
+        }
+    }
 
 }

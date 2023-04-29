@@ -67,5 +67,22 @@ namespace FamilyBankWeb.Data
             var client = _httpClientFactory.CreateClient("Api");
             return await client.DeleteAsync($"/Transactions/Scheduled/{id}");
         }
+
+        public async Task<HttpResponseMessage> CreateTransfer(TransferModel transferModel)
+        {
+            var client = _httpClientFactory.CreateClient("Api");
+            return await client.PostAsJsonAsync("Transfers", transferModel);
+        }
+
+        public async Task<List<TransferModel>> GetTransfers(int accountID)
+        {
+            var client = _httpClientFactory.CreateClient("Api");
+            var response = await client.GetAsync($"Transfers/Account/{accountID}");
+            response.EnsureSuccessStatusCode(); // response gets the json file
+            var json = await response.Content.ReadAsStringAsync();
+            var trans = JsonSerializer.Deserialize<List<TransferModel>>(json);
+            return trans;
+        }
+
     }
 }

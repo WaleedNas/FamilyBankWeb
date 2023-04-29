@@ -4,7 +4,7 @@
 @inject IHttpClientFactory clientFactory
 @inject NavigationManager NavigationManager
 @inject IDataProtectionProvider dataProtection
-
+@attribute [Authorize(Roles ="Main")]
 
 <section class="paybills">
     <h2 class="heading-secondary"
@@ -23,7 +23,7 @@
             <div class="form__group paybillsdetailsform">
                 <input type="text"
                        class="form__input"
-                       placeholder="Type"
+                       placeholder="Title"
                        @bind="title"
                        id="Type" />
                 <label for="Type" class="form__label">Title</label>
@@ -53,11 +53,10 @@
                        name="automatic-payment" />
                 <label for="automatic-payment" class="paybillsdetailsdivlabel">Automatic Monthly Payment</label>
             </div>
-            <div>
-                <h3>@alert</h3>
-            </div>
+
             <!-- put this in center -->
             <div class="form__group">
+                <h3>@alert</h3>
                 <a href="/paybills" class="btn btn--green">&larr; Back</a>
                 <a @onclick="HandleSubmit" class="btn btn--green">Submit &rarr;</a>
             </div>
@@ -154,7 +153,8 @@
                 transaction.description = desc;
                 transaction.transactionDate = DateTime.Now;
                 var response = await data.CreateTransaction(transaction);
-                if (response.IsSuccessStatusCode)
+
+                if (response.IsSuccessStatusCode && response.StatusCode != (System.Net.HttpStatusCode)240)
                 {
                     alert = "Payment Successful";
                     alert = "Payment Added";
@@ -162,9 +162,13 @@
                     alert = "redirecting...";
                     NavigationManager.NavigateTo("/paybills");
                 }
+                else if (response.StatusCode == (System.Net.HttpStatusCode)240)
+                {
+                    alert = "Insufficient Funds";
+                }
                 else
                 {
-                    alert = "Error with payment";
+                    alert = "Error in Payment";
                 }
             }
         }

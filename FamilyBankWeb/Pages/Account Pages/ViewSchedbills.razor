@@ -7,6 +7,7 @@
 @attribute [Authorize(Roles ="Main")]
 
 <style>
+
     .item {
   display: flex;
   align-items: center;
@@ -15,16 +16,19 @@
   padding: 1rem;
   margin: 0.5rem;
   border: 1px solid #ccc;
+  width:80%;
 }
 
 .actions {
   display: flex;
-  align-items: center;
+    justify-content: flex-end;
+    align-items: center;
 }
 
 .name {
     font-size: 1.8rem;
-    margin-right: 80rem;
+    flex-grow: 1;
+    align-self: stretch;
 }
 
 .delete {
@@ -58,25 +62,40 @@
     <h2 class="heading-secondary"
         style="
               font-size: 3rem;
-              margin-top: -30rem;
+              margin-top: -40rem;
               margin-bottom: 3rem;
               margin-left: 0;
               margin-right: 0;
+                position:absolute;
             ">
         View Scheduled Bills
     </h2>
     
+
     @foreach (var bill in scheduledTransactions)
     {
         <div class="item">
-        <span class="name">@bill.title - @bill.description AED @bill.amount Monthly</span>
-          <div class="actions">
-            <button class="delete">Delete</button>
-            <button class="update">Update</button>
+            @if (bill.description == "Debit")
+            {
+            <span class="name">@bill.title - @bill.description AED @bill.amount Monthly - End Date: @(bill.endDate.Date.ToShortDateString())</span>
+                
+            }
+            else
+            {
+                
+            <span class="name">@bill.title - @bill.description AED @bill.amount Monthly</span>
+            }
+            <div class="actions">
+            <button @onclick="(e) => HandleDelete(bill.scheduledTransactionID)" class="delete">Delete</button>
           </div>
         </div>
 
     }
+
+
+    <div class="form__group" style="margin-top:2rem;">
+                <a href="/account" class="btn btn--green">&larr; Back</a>
+    </div>
 
     
 </section>
@@ -89,7 +108,7 @@
     private UserModel user = new UserModel();
     private List<ScheduledTransactions> scheduledTransactions = new List<ScheduledTransactions>();
 
-    
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -100,12 +119,61 @@
             var accountIDString = protector.Unprotect(accountIDString_p);
             accountID = int.Parse(accountIDString);
 
-            scheduledTransactions = await data.GetScheduledTransactionsForAccount(accountID);
+            try
+            {
+                scheduledTransactions = await data.GetScheduledTransactionsForAccount(accountID);
+
+            }
+            catch(Exception e)
+            {
+
+            }
 
 
         } catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
         }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            TransactionData data = new TransactionData(clientFactory);
+            var accountIDString_p = await sessionStorage.GetItemAsync<string>("accountID");
+            var protector = dataProtection.CreateProtector("TheProtector");
+            var accountIDString = protector.Unprotect(accountIDString_p);
+            accountID = int.Parse(accountIDString);
+
+            try
+            {
+                scheduledTransactions = await data.GetScheduledTransactionsForAccount(accountID);
+
+            }
+            catch(Exception e)
+            {
+
+            }
+
+
+        } catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    public List<ScheduledTransactions> GetData()
+    {
+        return scheduledTransactions;
+    }
+
+    public async Task HandleDelete(int transID)
+    {
+
+        TransactionData data = new TransactionData(clientFactory);
+        await data.DeleteScheduledTransaction(transID);
+        NavigationManager.NavigateTo("/viewSchedbills", true);
+
     }
 }
