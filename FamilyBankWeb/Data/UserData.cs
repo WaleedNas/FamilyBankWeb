@@ -68,5 +68,12 @@ namespace FamilyBankWeb.Data
             var users = JsonSerializer.Deserialize<List<UserModel>>(json);
             return users;
         }
+
+        //put method update
+        public async Task<HttpResponseMessage> UpdateAllowance(int userID, int accountID, double amount)
+        {
+            var client = _httpClientFactory.CreateClient("Api");
+            return await client.PutAsJsonAsync($"Users/Allowance/{userID}/{accountID}", amount);
+        }
     }
 }

@@ -72,5 +72,13 @@ namespace FamilyBankWeb.Data
             return account;
         }
 
+        public async Task<string> OTP (string mobileNum)
+        {
+            
+                var client = _httpClientFactory.CreateClient("Api");
+                var response = await client.PostAsJsonAsync("/Accounts/OTP", mobileNum);
+            return await response.Content.ReadFromJsonAsync<string>();
+                
+        }
     }
 }

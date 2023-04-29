@@ -1,4 +1,5 @@
 ﻿@page "/allowance"
+@layout AccountLayout
 @attribute [Authorize (Roles ="Main")]
 @inject ISessionStorageService sessionStorage
 @inject IHttpClientFactory clientFactory
@@ -6,21 +7,73 @@
 @inject IDataProtectionProvider dataProtection
 
 @{
-    var joinedList = from user in allUsers
-                     join accountUser in userList.SelectMany(x => x)
-                         on new { userID = user.userID, accountID = accountID }
-                         equals new { userID = accountUser.userID, accountID = accountUser.accountID }
-                         into accountUsers
-                     select new { User = user, AccountUser = accountUsers.FirstOrDefault() };
+
 }
+
+<section class="paybills">
+    <h2 class="heading-secondary"
+        style="
+              font-size: 3rem;
+              margin-top: 2rem;
+              margin-bottom: 2rem;
+              margin-left: 0;
+              margin-right: 0;
+            ">
+        Set Allowance
+    </h2>
+    <!-- fix text fields width & position -->
+    <div class="paybills__form">
+        <form action="/pay" method="POST">
+            <div class="form__group paybillsdetailsform">
+                <input type="text"
+                       class="form__input"
+                       placeholder="Username"
+                       @bind="username"
+                       id="username" />
+                <label for="username" class="form__label">Username</label>
+            </div>
+            <div class="form__group paybillsdetailsform">
+                <input type="number"
+                       class="form__input"
+                       placeholder="Amount"
+                       @bind="amount"
+                       id="amount" />
+                <label for="amount" class="form__label">Amount</label>
+            </div>
+            <!-- style this class="form__label"-->
+            <div class="paybillsdetailsdiv" style="margin-bottom: 2rem">
+                <input class="paybillsdetailsdivcheckbox"
+                       type="checkbox"
+                       id="automatic-payment"
+                       @bind="instantTransfer"
+                       name="automatic-payment" />
+                <label for="automatic-payment" class="paybillsdetailsdivlabel">Instant Transfer</label>
+            </div>
+
+            <!-- put this in center -->
+            <div class="form__group">
+                <h3>@alert</h3>
+                <a href="/account" class="btn btn--green">&larr; Back</a>
+                <a @onclick="HandleSubmit" class="btn btn--green">Submit &rarr;</a>
+                <a href="/viewallowance"class="btn btn--green">View Timed Transfers</a>
+            </div>
+            <!-- tell waleed to add option that user must turn off automatic payment if they want to pay same bill again (pop up) -->
+        </form>
+    </div>
+</section>
 
 @code {
     private UserModel user = new UserModel();
     private List<UserModel> allUsers = new List<UserModel>();
-    private List<List<AccountUserModel>> userList = new List<List<AccountUserModel>>();
+    private string username { get; set; }
 
+    private List<TransferModel> transfers = new List<TransferModel>();
 
-    private bool hasOwnAccount { get; set; }
+    private double allowance { get; set; }
+    private double amount { get; set; }
+    private string alert { get; set; }
+
+    private bool instantTransfer { get; set; }
 
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationState { get; set; }
@@ -32,6 +85,7 @@
         {
             UserData data = new UserData(clientFactory, sessionStorage);
             AccountData accountData = new AccountData(clientFactory);
+            TransactionData transactionData = new TransactionData(clientFactory);
             var accountIDString_p = await sessionStorage.GetItemAsync<string>("accountID");
             var protector = dataProtection.CreateProtector("TheProtector");
             var accountIDString = protector.Unprotect(accountIDString_p);
@@ -56,19 +110,16 @@
                     }
                     user = await data.GetUserFromContext(claimValue);
 
-                    allUsers = await data.GetUsersFromAccount(accountID);
-                    allUsers.Remove(allUsers.First(u => u.userID == user.userID));
+                    try{
+                        allUsers = await data.GetUsersFromAccount(accountID);
+                        allUsers.Remove(allUsers.First(u => u.userID == user.userID));
 
-                    foreach (var _user in allUsers)
-					{
-						var accountUsers = await accountData.GetAccountUsers(_user.userID);
-						userList.Add(accountUsers);
-					}
-                    
-                    
+                        transfers = await transactionData.GetTransfers(accountID);
 
+                    } catch(Exception e)
+                    {
 
-
+                    }
                 }
             }
 
@@ -80,5 +131,83 @@
             ex.Message.ToString();
         }
     }
+
+    TransferModel transferModel = new TransferModel();
+
+    private async Task HandleSubmit()
+    {
+        var user = allUsers.FirstOrDefault(u => u.username == username);
+        TransactionData data = new TransactionData(clientFactory);
+        UserData userData = new UserData(clientFactory, sessionStorage);
+        TransactionModel transaction = new TransactionModel();
+
+        var filteredTransfers = transfers.Where(t => t.toUserID == user.userID).ToList();
+
+        if (user == null)
+        {
+            alert = "Member does not exist";
+            return;
+        }
+
+        if (instantTransfer)
+        {
+            //instant transfer
+            transferModel.title = "Allowance";
+            transferModel.fromAccountID = accountID;
+            transferModel.toAccountID = accountID;
+            transferModel.amount = amount;
+            transferModel.endDate = DateTime.Now.AddSeconds(5);
+            transferModel.transferDate = DateTime.Now;
+            transferModel.fromUserID = this.user.userID;
+            transferModel.toUserID = user.userID;
+            transferModel.transferFrequency = 1;
+            transferModel.isCompleted = false;
+            var response = await data.CreateTransfer(transferModel);
+            alert = "Amount Transfered";
+            return;
+        }
+        else if (filteredTransfers.Any())
+        {
+            await data.DeleteTransfer(filteredTransfers.First().transferID);
+            transferModel.title = "Allowance";
+            transferModel.fromAccountID = accountID;
+            transferModel.toAccountID = accountID;
+            transferModel.amount = amount;
+            transferModel.endDate = DateTime.Now.AddYears(1);
+            transferModel.transferDate = DateTime.Now;
+            transferModel.fromUserID = this.user.userID;
+            transferModel.toUserID = user.userID;
+            transferModel.transferFrequency = 4;
+            transferModel.isCompleted = false;
+            var response = await data.CreateTransfer(transferModel);
+            alert = "Allowance updated";
+            return;
+        }
+        else
+        {
+            //set allowance
+            transferModel.title = "Allowance";
+            transferModel.fromAccountID = accountID;
+            transferModel.toAccountID = accountID;
+            transferModel.amount = amount;
+            transferModel.endDate = DateTime.Now.AddYears(1);
+            transferModel.transferDate = DateTime.Now;
+            transferModel.fromUserID = this.user.userID;
+            transferModel.toUserID = user.userID;
+            transferModel.transferFrequency = 4;
+            transferModel.isCompleted = false;
+            var response = await data.CreateTransfer(transferModel);
+            if (response.IsSuccessStatusCode)
+			{
+				alert = "Allowance Set";
+			}
+			else
+			{
+				alert = "Error with allowance";
+			}
+        }
+
+    }
+
 
 }

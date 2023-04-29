@@ -136,37 +136,7 @@
         }
     }
 
-    protected override async Task OnParametersSetAsync()
-    {
-        try
-        {
-            TransactionData data = new TransactionData(clientFactory);
-            var accountIDString_p = await sessionStorage.GetItemAsync<string>("accountID");
-            var protector = dataProtection.CreateProtector("TheProtector");
-            var accountIDString = protector.Unprotect(accountIDString_p);
-            accountID = int.Parse(accountIDString);
 
-            try
-            {
-                scheduledTransactions = await data.GetScheduledTransactionsForAccount(accountID);
-
-            }
-            catch(Exception e)
-            {
-
-            }
-
-
-        } catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
-    }
-
-    public List<ScheduledTransactions> GetData()
-    {
-        return scheduledTransactions;
-    }
 
     public async Task HandleDelete(int transID)
     {

@@ -24,7 +24,7 @@
         <div class="row">
             <div class="book">
                 <div class="book__form">
-                    <EditForm Model=@userModel OnValidSubmit=HandleSubmit class="form">
+                    <EditForm Model=@userModel  class="form">
 
                         <div class="u-margin-bottom-medium">
                             <h2 class="heading-secondary">sign up now</h2>
@@ -97,11 +97,26 @@
                             <label for="phone" class="form__label">Phone number</label>
                         </div>
 
+                        @if (IsSubmitted)
+                        {
+                            <div class="form__group">
+                                <InputText class="form__input"
+                                           placeholder="OTP Code"
+                                           id="OTP Code"
+                                       @bind-Value="inputtedOtp"
+                                           required />
+                                <label for="OTP Code" class="form__label">Enter OTP</label>
+                            </div>
+                            <div class="form__group">
+   
+                                <button @onclick="HandleOTP" type="submit" class="btn btn--green">Submit OTP</button>
+                            </div>
+                        }
 
                         <div class="form__group">
                             <h4>@alertMessage</h4>
                             <h4>@loadingMessage</h4>
-                            <button type="submit" class="btn btn--green">Submit &rarr;</button>
+                            <button disabled="@IsSubmitted" type="submit" @onclick="SendOTP" class="btn btn--green">Submit &rarr;</button>
                         </div>
 
                     </EditForm>
@@ -123,6 +138,14 @@
     public string errorMessage { get; set; }
     public bool IsSubmitted {get ; set;}
 
+    private async Task SendOTP()
+    {
+        AccountData data = new AccountData(clientFactory);
+
+        correctOtp = await data.OTP(userModel.mobileNumber);
+
+        IsSubmitted = true;
+    }
 
     private async Task HandleSubmit()
     {
@@ -133,6 +156,7 @@
             var userData = new UserData(clientFactory, sessionStorage);
             var response = await userData.CreateUser(userModel);
             loadingMessage = "Waiting for Respnse";
+
 
             if (response.IsSuccessStatusCode && response.StatusCode != (System.Net.HttpStatusCode)231)
             {
@@ -154,6 +178,7 @@
                 IsSubmitted = false;
             } else
             {
+                Console.WriteLine(response.StatusCode);
                 loadingMessage = "";
                 alertMessage = "Username is used";
                 IsSubmitted = false;
@@ -181,6 +206,16 @@
             ex.Message.ToString();
         }
 
+    }
+
+    string inputtedOtp;
+    string correctOtp;
+
+    public async Task HandleOTP()
+    {
+        if (inputtedOtp != correctOtp) return;
+
+        await HandleSubmit();
     }
 
 
