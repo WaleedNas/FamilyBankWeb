@@ -153,10 +153,13 @@
         }
 
         await Task.Delay(1000);
+        await JS.InvokeVoidAsync("onLoad", DotNetObjectReference.Create(this));
+    }
 
+    [JSInvokable]
+    public async Task OnOpenChatbox()
+    {
         GptCompletion.Initialize(true);
-        await JS.InvokeVoidAsync("onLoad");
-
     }
 
     private async Task OnSubmit()
@@ -168,7 +171,15 @@
     public async Task SendToChatbot(string input)
     {
         var response = await GptCompletion.AskChatbot(input);
-        await JS.InvokeVoidAsync("chatbotReply", response);
+        if (response == "*")
+        {
+            string message = "You currently have " + Balance + " AED in your balance. Considering that your monthly expenses " +
+                             "are about " + ;
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("chatbotReply", response);
+        }
     }
 
 }

@@ -205,6 +205,7 @@
         {
             UserData data = new UserData(clientFactory, sessionStorage);
             TransactionData transactionData = new TransactionData(clientFactory);
+
             var accountIDString_p = await sessionStorage.GetItemAsync<string>("accountID");
             var protector = dataProtection.CreateProtector("TheProtector");
             var accountIDString = protector.Unprotect(accountIDString_p);
@@ -311,6 +312,7 @@
                 else
                 {
                     alert1 = "Error with payment";
+                    Console.WriteLine(response.ReasonPhrase);
                 }
             }
             else

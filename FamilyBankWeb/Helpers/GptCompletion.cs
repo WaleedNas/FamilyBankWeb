@@ -10,8 +10,10 @@ namespace FamilyBankWeb.Helpers
 
         public static void Initialize(bool isLoggedIn)
         {
-            var api = new OpenAIAPI("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"); // shorthand
 
+            Console.WriteLine("Initializing GPT-4...");
+            var api = new OpenAIAPI(new APIAuthentication("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", "org-tXuTEkbOQzlQXrZWDXedJRxN")); // shorthand
+            
             chat = api.Chat.CreateConversation(new ChatRequest()
             {
                 Model = Model.GPT4
@@ -21,6 +23,7 @@ namespace FamilyBankWeb.Helpers
                                      "Always answer briefly, don't write big paragraphs." +
                                      (isLoggedIn ? "If the user is logged in and asks about how much is safe to spend, " +
                                      "reply with '*' only, nothing else." : "Recommend that the user creates an account"));
+            Console.WriteLine("Finished initialization");
         }
 
         public static async Task<string> AskChatbot(string message)
