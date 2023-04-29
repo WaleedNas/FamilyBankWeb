@@ -15,7 +15,26 @@ namespace FamilyBankWeb.Data
         public async Task<HttpResponseMessage> CreateAccount(int userID, double balance)
         {
             var client = _httpClientFactory.CreateClient("Api");
-            return await client.PostAsJsonAsync($"/Accounts/{userID}", balance);
+            var response = await client.PostAsJsonAsync($"/Accounts/{userID}", balance);
+
+            var accountJson = await response.Content.ReadAsStringAsync();
+            var account = JsonSerializer.Deserialize<AccountModel>(accountJson);
+
+            ScheduledTransactions schedTransaction = new ScheduledTransactions()
+            {
+                accountID = account.accountID,
+                userID = userID,
+                debit = false,
+                amount = 7000,
+                title = "Salary",
+                description = "Monthly Salary",
+                transactionDate = DateTime.Now,
+                transactionFrequency = 4,
+                isCompleted = false
+            };
+
+            await client.PostAsJsonAsync($"/Transactions/Scheduled", schedTransaction);
+            return response;
         }
         public async Task<HttpResponseMessage> CreateAccountUser(AccountUserModel accountUser)
         {

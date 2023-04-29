@@ -218,7 +218,7 @@
         var response = await GptCompletion.AskChatbot(input);
         if (response == "*")
         {
-            var expenses = transactions.Where(t => t.debit == true).Sum(t => t.amount);
+            var expenses = scheduledTransactions.Where(t => t.debit == true).Sum(t => t.amount);
             DateOnly salaryDate;
             var salary = transactions.FirstOrDefault(t => t.title == "Salary");  /*scheduledTransactions.FirstOrDefault(t => t.title == "Salary")*/;
             var schedSalary = scheduledTransactions.FirstOrDefault(t => t.title == "Salary"); ;
@@ -227,7 +227,7 @@
             if(salary != null)
             {
                 salaryDate = DateOnly.FromDateTime(salary.transactionDate);
-                salaryDate.AddMonths(1);
+                salaryDate = salaryDate.AddMonths(1);
                 amount = salary.amount;
             }
             else if(schedSalary != null)
@@ -240,6 +240,8 @@
                              "are about " + expenses + " AED/month, it is safe to spend " + (Balance - expenses) + " AED. " +
                              (salary != null || schedSalary != null ? "The next salary release day is on " + salaryDate + ", the safe amount to spend " +
                                                "will be " + (Balance - expenses + amount) + " AED." : "");
+
+            GptCompletion.AddExampleChatbotAnswer(response);
         }
 
         await JS.InvokeVoidAsync("chatbotReply", response);

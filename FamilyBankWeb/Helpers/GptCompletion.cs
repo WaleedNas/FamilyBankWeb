@@ -10,9 +10,8 @@ namespace FamilyBankWeb.Helpers
 
         public static void Initialize(bool isLoggedIn)
         {
-
             Console.WriteLine("Initializing GPT-4...");
-            var api = new OpenAIAPI(new APIAuthentication("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", "org-tXuTEkbOQzlQXrZWDXedJRxN")); // shorthand
+            var api = new OpenAIAPI(new APIAuthentication("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"/*Environment.GetEnvironmentVariable("OPENAI_API_KEY")*/, "org-tXuTEkbOQzlQXrZWDXedJRxN")); // shorthand
             
             chat = api.Chat.CreateConversation(new ChatRequest()
             {
@@ -34,6 +33,11 @@ namespace FamilyBankWeb.Helpers
             chat.AppendUserInput(message);
 
             return await chat.GetResponseFromChatbotAsync();
+        }
+
+        public static void AddExampleChatbotAnswer(string message)
+        {
+            chat.AppendExampleChatbotOutput(message);
         }
     }
 }

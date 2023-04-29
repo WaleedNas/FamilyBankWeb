@@ -152,12 +152,10 @@
         var auth = new AuthService(clientFactory, sessionStorage, NavigationManager,
         authStateProvider, dataProtection);
         await auth.Logout();
-
     }
 
     protected override async Task OnInitializedAsync()
     {
-        //var module = await JS.InvokeAsync<IJSObjectReference>("chatbot", "./js/chatbot.js");
         await Task.Delay(1000);
         await JS.InvokeVoidAsync("onLoad", DotNetObjectReference.Create(this));
     }
