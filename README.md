@@ -1,0 +1,1 @@
+This repository represents the front end Web Application of the FamBank project, where it is integrated with a custom backend solution using ASP.NET which includes the database, chatbot and login system
